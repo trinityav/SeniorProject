@@ -11,21 +11,26 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
+
+        <activity
+            android:name=".WorkoutDetailsActivity"
+            android:exported="false" />
+
+        <!-- keep this if you still use HomeScreen as an activity -->
         <activity
             android:name=".HomeScreen"
             android:exported="false" />
-        <activity
-            android:name=".SecondActivity"
-            android:exported="false" />
+
         <activity
             android:name=".LogIn"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
+
 
 </manifest>
