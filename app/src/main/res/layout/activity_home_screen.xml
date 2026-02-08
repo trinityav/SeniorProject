@@ -9,11 +9,6 @@
     tools:context=".HomeScreen"
     android:padding="16dp">
 
-    <!-- Greeting -->
-
-    <!-- Start Workout Button -->
-
-    <!-- AI Chat Preview Card -->
 
     <TextView
         android:id="@+id/greetingText"

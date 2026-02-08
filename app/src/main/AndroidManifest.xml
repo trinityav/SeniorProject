@@ -21,6 +21,8 @@
             android:name=".HomeScreen"
             android:exported="false" />
 
+        <activity android:name=".Workout" />
+
         <activity
             android:name=".LogIn"
             android:exported="true">

@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +16,13 @@ public class HomeScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_home_screen);
+
+        Button startWorkoutButton = findViewById(R.id.startWorkoutButton);
+
+        startWorkoutButton.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeScreen.this, Workout.class);
+            startActivity(intent);
+        });
 
         BottomNavigationView bottomNav = findViewById(R.id.bottomNavigation);
 
