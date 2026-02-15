@@ -1,7 +1,7 @@
 package com.example.myapplication;
 
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import androidx.activity.EdgeToEdge;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.graphics.Insets;
@@ -12,9 +12,9 @@ public class Stats extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        EdgeToEdge.enable(this);
 
-        LayoutInflater inflater = getLayoutInflater();
-        inflater.inflate(R.layout.activity_stats, findViewById(R.id.container), true);
+        setActivityLayout(R.layout.activity_stats);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainContent),
                 (v, insets) -> {
@@ -23,7 +23,5 @@ public class Stats extends BaseActivity {
                             systemBars.right, systemBars.bottom);
                     return insets;
                 });
-
-
     }
 }

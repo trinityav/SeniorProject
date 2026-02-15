@@ -14,13 +14,14 @@ public class HomeScreen extends BaseActivity {
 
         EdgeToEdge.enable(this);
 
-        getLayoutInflater().inflate(R.layout.activity_home_screen, findViewById(R.id.container));
+        setActivityLayout(R.layout.activity_home_screen);
 
         Button startWorkoutButton = findViewById(R.id.startWorkoutButton);
 
-        startWorkoutButton.setOnClickListener(v -> {
-            startActivity(new Intent(HomeScreen.this, Workout.class));
-        });
-
+        if (startWorkoutButton != null) {
+            startWorkoutButton.setOnClickListener(v -> {
+                startActivity(new Intent(HomeScreen.this, Workout.class));
+            });
+        }
     }
 }

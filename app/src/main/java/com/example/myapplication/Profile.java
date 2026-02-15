@@ -1,53 +1,59 @@
 package com.example.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 public class Profile extends BaseActivity {
 
-    Button testWorkouts;
-    Button editProfile;
-    Button logout;
+    private Button testWorkouts;
+    private Button editProfile;
+    private Button logout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Enable edge-to-edge if needed
         EdgeToEdge.enable(this);
 
-        // Inflate this page's content into BaseActivity's container
-        getLayoutInflater().inflate(R.layout.activity_profile, findViewById(R.id.container));
+        // This inflates activity_profile.xml into the FrameLayout container in activity_base.xml
+        setActivityLayout(R.layout.activity_profile);
 
-        // Initialize buttons inside the container
+        // Apply edge-to-edge padding to the main content view
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainContent),
+                (v, insets) -> {
+                    Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                    v.setPadding(systemBars.left, systemBars.top,
+                            systemBars.right, systemBars.bottom);
+                    return insets;
+                });
+
+        // Initialize buttons
         testWorkouts = findViewById(R.id.btnTestWorkouts);
         editProfile = findViewById(R.id.btnEditProfile);
         logout = findViewById(R.id.btnLogout);
 
-        // Test Workouts button
-        testWorkouts.setOnClickListener(v -> {
-            // Open workouts fragment or activity
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.container, new WorkoutsFragment())
-                    .addToBackStack(null)
-                    .commit();
-        });
+        if (testWorkouts != null) {
+            testWorkouts.setOnClickListener(v -> {
+                startActivity(new Intent(Profile.this, WorkoutsActivity.class));
+            });
+        }
 
-        // Edit Profile button
-        editProfile.setOnClickListener(v -> {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.container, new ProfileFragment())
-                    .addToBackStack(null)
-                    .commit();
-        });
+        if (editProfile != null) {
+            editProfile.setOnClickListener(v -> {
+                // Placeholder for Edit Profile functionality
+            });
+        }
 
-        // Logout button
-        logout.setOnClickListener(v -> finish());
+        if (logout != null) {
+            logout.setOnClickListener(v -> finish());
+        }
 
-        // No need to handle BottomNavigationView here — BaseActivity already handles it
+        // Note: BottomNavigationView selection and listeners are handled in BaseActivity
     }
 }
