@@ -20,7 +20,7 @@ public class HomeScreen extends AppCompatActivity {
         Button startWorkoutButton = findViewById(R.id.startWorkoutButton);
 
         startWorkoutButton.setOnClickListener(v -> {
-            Intent intent = new Intent(HomeScreen.this, Workout.class);
+            Intent intent = new Intent(HomeScreen.this, WorkoutsActivity.class);
             startActivity(intent);
         });
 
