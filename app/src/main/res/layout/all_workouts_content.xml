@@ -1,132 +1,144 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:background="#F9FAFB">
 
+    <!-- Scrollable content (Filters card + RecyclerView) -->
+    <LinearLayout
+        android:id="@+id/mainContent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Filters card -->
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        android:layout_marginStart="0dp"
-        android:layout_marginEnd="0dp"
-        android:layout_marginTop="0dp"
-        android:elevation="2dp">
-
-        <LinearLayout
+        <!-- Filters card -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="12dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Filters"
-                android:textStyle="bold"
-                android:textSize="14sp" />
-
-            <!-- Duration row -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Duration"
-                android:textSize="12sp"
-                android:layout_marginTop="8dp" />
+            android:layout_marginBottom="12dp"
+            android:elevation="2dp">
 
             <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <Button
-                    android:id="@+id/btnShort"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Short"
-                    android:backgroundTint="@android:color/white"
-                    android:textColor="@android:color/black" />
-
-                <Button
-                    android:id="@+id/btnMedium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Medium"
-                    android:layout_marginStart="8dp"
-                    android:backgroundTint="@android:color/white"
-                    android:textColor="@android:color/black" />
-
-                <Button
-                    android:id="@+id/btnLong"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Long"
-                    android:layout_marginStart="8dp"
-                    android:backgroundTint="@android:color/white"
-                    android:textColor="@android:color/black" />
-            </LinearLayout>
-
-            <!-- Difficulty row -->
-            <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Difficulty"
-                android:textSize="12sp"
-                android:layout_marginTop="8dp" />
+                android:orientation="vertical"
+                android:padding="12dp">
 
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <Button
-                    android:id="@+id/btnEasy"
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Easy"
-                    android:backgroundTint="@android:color/white"
-                    android:textColor="@android:color/black" />
+                    android:text="Filters"
+                    android:textStyle="bold"
+                    android:textSize="14sp"/>
 
-                <Button
-                    android:id="@+id/btnModerate"
+                <!-- Duration row -->
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Moderate"
-                    android:layout_marginStart="8dp"
-                    android:backgroundTint="@android:color/white"
-                    android:textColor="@android:color/black" />
+                    android:text="Duration"
+                    android:textSize="12sp"
+                    android:layout_marginTop="8dp" />
 
-                <Button
-                    android:id="@+id/btnHard"
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <Button
+                        android:id="@+id/btnShort"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Short"
+                        android:backgroundTint="@android:color/white"
+                        android:textColor="@android:color/black"/>
+
+                    <Button
+                        android:id="@+id/btnMedium"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Medium"
+                        android:layout_marginStart="8dp"
+                        android:backgroundTint="@android:color/white"
+                        android:textColor="@android:color/black"/>
+
+                    <Button
+                        android:id="@+id/btnLong"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Long"
+                        android:layout_marginStart="8dp"
+                        android:backgroundTint="@android:color/white"
+                        android:textColor="@android:color/black"/>
+                </LinearLayout>
+
+                <!-- Difficulty row -->
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Hard"
-                    android:layout_marginStart="8dp"
-                    android:backgroundTint="@android:color/white"
-                    android:textColor="@android:color/black" />
+                    android:text="Difficulty"
+                    android:textSize="12sp"
+                    android:layout_marginTop="8dp"/>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <Button
+                        android:id="@+id/btnEasy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Easy"
+                        android:backgroundTint="@android:color/white"
+                        android:textColor="@android:color/black"/>
+
+                    <Button
+                        android:id="@+id/btnModerate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Moderate"
+                        android:layout_marginStart="8dp"
+                        android:backgroundTint="@android:color/white"
+                        android:textColor="@android:color/black"/>
+
+                    <Button
+                        android:id="@+id/btnHard"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Hard"
+                        android:layout_marginStart="8dp"
+                        android:backgroundTint="@android:color/white"
+                        android:textColor="@android:color/black"/>
+                </LinearLayout>
+
             </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
+        <!-- Workout list -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvWorkouts"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
 
-    <!-- Workout list (blank cards handled by item_workout.xml + adapter) -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvWorkouts"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+    </LinearLayout>
 
+    <!-- Bottom Navigation Bar -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
         app:menu="@menu/bottom_nav_menu"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:itemIconTint="@color/bottom_nav_icon_tint"
+        app:itemTextColor="@color/bottom_nav_text_tint"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
