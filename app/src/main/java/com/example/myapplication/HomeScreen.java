@@ -20,8 +20,9 @@ public class HomeScreen extends BaseActivity {
 
         if (startWorkoutButton != null) {
             startWorkoutButton.setOnClickListener(v -> {
-                startActivity(new Intent(HomeScreen.this, Workout.class));
+                startActivity(new Intent(HomeScreen.this, WorkoutsActivity.class));
             });
+
         }
     }
 }

@@ -2,22 +2,20 @@ package com.example.myapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class WorkoutsActivity extends AppCompatActivity {
+public class WorkoutsActivity extends BaseActivity {
 
     private View todayView;
     private View allView;
@@ -28,9 +26,10 @@ public class WorkoutsActivity extends AppCompatActivity {
     private Workout todayWorkout;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_workouts);
+
+        setActivityLayout(R.layout.activity_workouts);
 
         initWorkouts();
 
@@ -40,9 +39,8 @@ public class WorkoutsActivity extends AppCompatActivity {
         tabLayout.addTab(tabLayout.newTab().setText("Today"));
         tabLayout.addTab(tabLayout.newTab().setText("All Workouts"));
 
-        LayoutInflater inflater = LayoutInflater.from(this);
-        todayView = inflater.inflate(R.layout.today_workout_content, tabContent, false);
-        allView = inflater.inflate(R.layout.all_workouts_content, tabContent, false);
+        todayView = getLayoutInflater().inflate(R.layout.today_workout_content, tabContent, false);
+        allView = getLayoutInflater().inflate(R.layout.all_workouts_content, tabContent, false);
 
         tabContent.addView(todayView);
         tabContent.addView(allView);
@@ -54,33 +52,17 @@ public class WorkoutsActivity extends AppCompatActivity {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                boolean showToday = tab.getPosition() == 0;
-                todayView.setVisibility(showToday ? View.VISIBLE : View.GONE);
-                allView.setVisibility(showToday ? View.GONE : View.VISIBLE);
+                if (tab.getPosition() == 0) {
+                    todayView.setVisibility(View.VISIBLE);
+                    allView.setVisibility(View.GONE);
+                } else {
+                    todayView.setVisibility(View.GONE);
+                    allView.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override public void onTabUnselected(TabLayout.Tab tab) { }
             @Override public void onTabReselected(TabLayout.Tab tab) { }
-        });
-
-        BottomNavigationView bottomNav = findViewById(R.id.bottomNavigation);
-        bottomNav.setOnItemSelectedListener(item -> {
-            int id = item.getItemId();
-
-            if (id == R.id.nav_home) {
-                startActivity(new Intent(this, HomeScreen.class));
-                return true;
-            }
-
-            if (id == R.id.nav_progress) {
-                return true;
-            }
-
-            if (id == R.id.nav_profile) {
-                return true;
-            }
-
-            return false;
         });
     }
 
@@ -98,17 +80,19 @@ public class WorkoutsActivity extends AppCompatActivity {
 
     private void setupTodayView(View view) {
         Button btnStart = view.findViewById(R.id.btnStartWorkout);
-        btnStart.setOnClickListener(v -> openWorkoutDetails(todayWorkout.getId()));
+        if (btnStart != null) {
+            btnStart.setOnClickListener(v -> openWorkoutDetails(todayWorkout.getId()));
+        }
     }
 
     private void setupAllView(View view) {
         RecyclerView rv = view.findViewById(R.id.rvWorkouts);
-        rv.setLayoutManager(new LinearLayoutManager(this));
-
-        adapter = new WorkoutsAdapter(workout -> openWorkoutDetails(workout.getId()));
-        rv.setAdapter(adapter);
-
-        adapter.setWorkouts(allWorkouts);
+        if (rv != null) {
+            rv.setLayoutManager(new LinearLayoutManager(this));
+            adapter = new WorkoutsAdapter(workout -> openWorkoutDetails(workout.getId()));
+            rv.setAdapter(adapter);
+            adapter.setWorkouts(allWorkouts);
+        }
     }
 
     private void openWorkoutDetails(int workoutId) {
