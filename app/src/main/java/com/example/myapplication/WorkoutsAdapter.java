@@ -3,7 +3,6 @@ package com.example.myapplication;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,11 +24,7 @@ public class WorkoutsAdapter extends RecyclerView.Adapter<WorkoutsAdapter.ViewHo
     }
 
     public void setWorkouts(List<Workout> newList) {
-        if (newList == null) {
-            workouts = new ArrayList<>();
-        } else {
-            workouts = newList;
-        }
+        workouts = newList == null ? new ArrayList<>() : newList;
         notifyDataSetChanged();
     }
 
@@ -44,7 +39,9 @@ public class WorkoutsAdapter extends RecyclerView.Adapter<WorkoutsAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Workout workout = workouts.get(position);
-        holder.bind(workout, listener);
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onWorkoutClick(workout);
+        });
     }
 
     @Override
@@ -53,29 +50,8 @@ public class WorkoutsAdapter extends RecyclerView.Adapter<WorkoutsAdapter.ViewHo
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-
-        // TextViews
-        TextView tvName;
-        TextView tvDuration;
-        TextView tvDifficulty;
-        TextView tvExercises;
-
         ViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvName = itemView.findViewById(R.id.tvWorkoutName);
-            tvDuration = itemView.findViewById(R.id.tvWorkoutDuration);
-            tvDifficulty = itemView.findViewById(R.id.tvWorkoutDifficulty);
-            tvExercises = itemView.findViewById(R.id.tvWorkoutExercises);
-        }
-
-        void bind(final Workout workout, final OnWorkoutClickListener listener) {
-
-
-            itemView.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onWorkoutClick(workout);
-                }
-            });
         }
     }
 }

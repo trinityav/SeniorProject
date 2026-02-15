@@ -4,50 +4,43 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class WorkoutsFragment extends Fragment {
+public class WorkoutsActivity extends AppCompatActivity {
 
     private View todayView;
     private View allView;
 
     private WorkoutsAdapter adapter;
 
-    private List<Workout> allWorkouts = new ArrayList<>();
+    private final List<Workout> allWorkouts = new ArrayList<>();
     private Workout todayWorkout;
 
-    public WorkoutsFragment() {
-    }
-
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-
-        View root = inflater.inflate(R.layout.fragment_workouts, container, false);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_workouts);
 
         initWorkouts();
 
-        TabLayout tabLayout = root.findViewById(R.id.tabLayout);
-        FrameLayout tabContent = root.findViewById(R.id.tabContent);
+        TabLayout tabLayout = findViewById(R.id.tabLayout);
+        FrameLayout tabContent = findViewById(R.id.tabContent);
 
         tabLayout.addTab(tabLayout.newTab().setText("Today"));
         tabLayout.addTab(tabLayout.newTab().setText("All Workouts"));
 
+        LayoutInflater inflater = LayoutInflater.from(this);
         todayView = inflater.inflate(R.layout.today_workout_content, tabContent, false);
         allView = inflater.inflate(R.layout.all_workouts_content, tabContent, false);
 
@@ -61,35 +54,44 @@ public class WorkoutsFragment extends Fragment {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                if (tab.getPosition() == 0) {
-                    todayView.setVisibility(View.VISIBLE);
-                    allView.setVisibility(View.GONE);
-                } else {
-                    todayView.setVisibility(View.GONE);
-                    allView.setVisibility(View.VISIBLE);
-                }
+                boolean showToday = tab.getPosition() == 0;
+                todayView.setVisibility(showToday ? View.VISIBLE : View.GONE);
+                allView.setVisibility(showToday ? View.GONE : View.VISIBLE);
             }
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-            }
+            @Override public void onTabUnselected(TabLayout.Tab tab) { }
+            @Override public void onTabReselected(TabLayout.Tab tab) { }
         });
 
-        return root;
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNavigation);
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_home) {
+                startActivity(new Intent(this, HomeScreen.class));
+                return true;
+            }
+
+            if (id == R.id.nav_progress) {
+                return true;
+            }
+
+            if (id == R.id.nav_profile) {
+                return true;
+            }
+
+            return false;
+        });
     }
 
     private void initWorkouts() {
+        allWorkouts.clear();
         allWorkouts.add(new Workout(1));
         allWorkouts.add(new Workout(2));
         allWorkouts.add(new Workout(3));
         allWorkouts.add(new Workout(4));
         allWorkouts.add(new Workout(5));
         allWorkouts.add(new Workout(6));
-
 
         todayWorkout = allWorkouts.get(0);
     }
@@ -101,17 +103,16 @@ public class WorkoutsFragment extends Fragment {
 
     private void setupAllView(View view) {
         RecyclerView rv = view.findViewById(R.id.rvWorkouts);
-        rv.setLayoutManager(new LinearLayoutManager(requireContext()));
+        rv.setLayoutManager(new LinearLayoutManager(this));
 
-        adapter = new WorkoutsAdapter(workout ->
-                openWorkoutDetails(workout.getId()));
-
+        adapter = new WorkoutsAdapter(workout -> openWorkoutDetails(workout.getId()));
         rv.setAdapter(adapter);
+
         adapter.setWorkouts(allWorkouts);
     }
 
     private void openWorkoutDetails(int workoutId) {
-        Intent intent = new Intent(requireContext(), WorkoutDetailsActivity.class);
+        Intent intent = new Intent(this, WorkoutDetailsActivity.class);
         intent.putExtra("workout_id", workoutId);
         startActivity(intent);
     }
