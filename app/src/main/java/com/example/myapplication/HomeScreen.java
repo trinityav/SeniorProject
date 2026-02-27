@@ -24,5 +24,13 @@ public class HomeScreen extends BaseActivity {
             });
 
         }
+
+        SessionManager sessionManager = new SessionManager(this);
+        if (!sessionManager.isLoggedIn()) {
+            Intent intent = new Intent(this, LogIn.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        }
     }
 }

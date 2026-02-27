@@ -9,6 +9,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.myapplication.data.local.UserEntity;
+import com.example.myapplication.data.repo.FitnessRepository;
+
 public class SignUpActivity extends AppCompatActivity {
 
     private ImageButton btnBack;
@@ -18,10 +21,14 @@ public class SignUpActivity extends AppCompatActivity {
     private EditText etConfirmPassword;
     private Button btnCreateAccount;
 
+    private FitnessRepository repository;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup_form);
+
+        repository = new FitnessRepository(this);
 
         btnBack = findViewById(R.id.btnBack);
         etUsername = findViewById(R.id.etUsername);
@@ -43,11 +50,22 @@ public class SignUpActivity extends AppCompatActivity {
             } else if (!password.equals(confirmPassword)) {
                 Toast.makeText(SignUpActivity.this, "Passwords do not match", Toast.LENGTH_SHORT).show();
             } else {
-                // For now, simulate account creation and go to login or home
-                Toast.makeText(SignUpActivity.this, "Account created successfully", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
-                startActivity(intent);
-                finish();
+                new Thread(() -> {
+                    UserEntity existing = repository.getUserByEmail(email);
+                    if (existing != null) {
+                        runOnUiThread(() ->
+                                Toast.makeText(SignUpActivity.this, "Email already in use", Toast.LENGTH_SHORT).show()
+                        );
+                    } else {
+                        repository.createUser(username, email, password);
+                        runOnUiThread(() -> {
+                            Toast.makeText(SignUpActivity.this, "Account created successfully", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                            startActivity(intent);
+                            finish();
+                        });
+                    }
+                }).start();
             }
         });
     }

@@ -51,7 +51,15 @@ public class Profile extends BaseActivity {
         }
 
         if (logout != null) {
-            logout.setOnClickListener(v -> finish());
+            logout.setOnClickListener(v -> {
+                SessionManager sessionManager = new SessionManager(Profile.this);
+                sessionManager.logoutUser();
+
+                Intent intent = new Intent(Profile.this, LogIn.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            });
         }
 
         // Note: BottomNavigationView selection and listeners are handled in BaseActivity

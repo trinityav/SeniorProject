@@ -10,6 +10,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.myapplication.data.local.UserEntity;
+import com.example.myapplication.data.repo.FitnessRepository;
+
 public class LoginActivity extends AppCompatActivity {
 
     private ImageButton btnBack;
@@ -18,38 +21,51 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnLogin;
     private TextView tvGoSignup;
 
+    private FitnessRepository repository;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_form);
 
-        // Initialize views
+        repository = new FitnessRepository(this);
+
         btnBack = findViewById(R.id.btnBack);
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         tvGoSignup = findViewById(R.id.tvGoSignup);
 
-        // Back button functionality
         btnBack.setOnClickListener(v -> finish());
 
-        // Login button functionality
         btnLogin.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
 
             if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(LoginActivity.this, "Please enter email and password", Toast.LENGTH_SHORT).show();
-            } else {
-                // For now, simulate successful login and navigate to HomeScreen
-                Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(LoginActivity.this, HomeScreen.class);
-                startActivity(intent);
-                finish();
+                return;
             }
+
+            new Thread(() -> {
+                UserEntity user = repository.getUserByEmailAndPassword(email, password);
+
+                runOnUiThread(() -> {
+                    if (user != null) {
+                        Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+                        SessionManager sessionManager = new SessionManager(this);
+                        sessionManager.loginUser(user.id);
+
+                        Intent intent = new Intent(LoginActivity.this, HomeScreen.class);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Invalid email or password", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }).start();
         });
 
-        // Navigate to Sign Up screen
         tvGoSignup.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
             startActivity(intent);
