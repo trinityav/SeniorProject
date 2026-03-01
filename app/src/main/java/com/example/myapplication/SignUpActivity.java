@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +21,7 @@ public class SignUpActivity extends AppCompatActivity {
     private EditText etPassword;
     private EditText etConfirmPassword;
     private Button btnCreateAccount;
+    private TextView tvGoLogin;
 
     private FitnessRepository repository;
 
@@ -36,8 +38,19 @@ public class SignUpActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
         btnCreateAccount = findViewById(R.id.btnCreateAccount);
+        tvGoLogin = findViewById(R.id.tvGoLogin);
 
-        btnBack.setOnClickListener(v -> finish());
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish());
+        }
+
+        if (tvGoLogin != null) {
+            tvGoLogin.setOnClickListener(v -> {
+                Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            });
+        }
 
         btnCreateAccount.setOnClickListener(v -> {
             String username = etUsername.getText().toString().trim();

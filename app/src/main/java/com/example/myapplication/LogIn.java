@@ -11,7 +11,7 @@ import com.example.myapplication.data.repo.FitnessRepository;
 public class LogIn extends AppCompatActivity {
 
     private Button signUpButton;
-    private Button loginButton;
+    private Button signInButton;
 
     private FitnessRepository repository;
 
@@ -26,14 +26,14 @@ public class LogIn extends AppCompatActivity {
         new Thread(() -> repository.ensureAdminUserExists()).start();
 
         signUpButton = findViewById(R.id.signUpButton);
-        loginButton = findViewById(R.id.loginButton);
+        signInButton = findViewById(R.id.signInButton);
 
         signUpButton.setOnClickListener(v -> {
             Intent intent = new Intent(LogIn.this, SignUpActivity.class);
             startActivity(intent);
         });
 
-        loginButton.setOnClickListener(v -> {
+        signInButton.setOnClickListener(v -> {
             Intent intent = new Intent(LogIn.this, LoginActivity.class);
             startActivity(intent);
         });
