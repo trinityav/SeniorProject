@@ -3,6 +3,7 @@ package com.example.myapplication;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -39,6 +40,11 @@ public class WorkoutsAdapter extends RecyclerView.Adapter<WorkoutsAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Workout workout = workouts.get(position);
+        holder.tvWorkoutName.setText("Workout #" + workout.getId());
+        holder.tvWorkoutDuration.setText("30 mins");
+        holder.tvWorkoutDifficulty.setText("Intermediate");
+        holder.tvWorkoutExercises.setText("Pushups, Squats, Planks");
+
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) listener.onWorkoutClick(workout);
         });
@@ -50,8 +56,14 @@ public class WorkoutsAdapter extends RecyclerView.Adapter<WorkoutsAdapter.ViewHo
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView tvWorkoutName, tvWorkoutDuration, tvWorkoutDifficulty, tvWorkoutExercises;
+
         ViewHolder(@NonNull View itemView) {
             super(itemView);
+            tvWorkoutName = itemView.findViewById(R.id.tvWorkoutName);
+            tvWorkoutDuration = itemView.findViewById(R.id.tvWorkoutDuration);
+            tvWorkoutDifficulty = itemView.findViewById(R.id.tvWorkoutDifficulty);
+            tvWorkoutExercises = itemView.findViewById(R.id.tvWorkoutExercises);
         }
     }
 }

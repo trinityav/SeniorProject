@@ -16,12 +16,15 @@ public class Stats extends BaseActivity {
 
         setActivityLayout(R.layout.activity_stats);
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainContent),
-                (v, insets) -> {
-                    Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-                    v.setPadding(systemBars.left, systemBars.top,
-                            systemBars.right, systemBars.bottom);
-                    return insets;
-                });
+        // Fixed: Use statsRoot instead of mainContent which was missing in the XML
+        if (findViewById(R.id.statsRoot) != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.statsRoot),
+                    (v, insets) -> {
+                        Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                        v.setPadding(systemBars.left, systemBars.top,
+                                systemBars.right, systemBars.bottom);
+                        return insets;
+                    });
+        }
     }
 }

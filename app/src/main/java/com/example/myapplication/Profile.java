@@ -24,14 +24,16 @@ public class Profile extends BaseActivity {
         // This inflates activity_profile.xml into the FrameLayout container in activity_base.xml
         setActivityLayout(R.layout.activity_profile);
 
-        // Apply edge-to-edge padding to the main content view
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainContent),
-                (v, insets) -> {
-                    Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-                    v.setPadding(systemBars.left, systemBars.top,
-                            systemBars.right, systemBars.bottom);
-                    return insets;
-                });
+        // Fixed: Use profileRoot instead of mainContent which was missing in the XML
+        if (findViewById(R.id.profileRoot) != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.profileRoot),
+                    (v, insets) -> {
+                        Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                        v.setPadding(systemBars.left, systemBars.top,
+                                systemBars.right, systemBars.bottom);
+                        return insets;
+                    });
+        }
 
         // Initialize buttons
         testWorkouts = findViewById(R.id.btnTestWorkouts);
@@ -61,7 +63,5 @@ public class Profile extends BaseActivity {
                 finish();
             });
         }
-
-        // Note: BottomNavigationView selection and listeners are handled in BaseActivity
     }
 }
