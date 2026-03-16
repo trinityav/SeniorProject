@@ -48,3 +48,10 @@ class Schedule(Base):
     exercise_name = Column(String)
     sets = Column(String)
     reps = Column(String)
+
+class SignupRequest(Base):
+    email = Column(String)
+    password = Column(String)
+
+class SignupResponse(Base):
+    message = Column(String)
