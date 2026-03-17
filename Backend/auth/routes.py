@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from Backend.models import SignupRequest, SignupResponse
+from Backend.schemas import SignupRequest, SignupResponse
 from Backend.auth.utils import hash_password
 from Backend.database import get_db
 from Backend.models import User
@@ -14,7 +14,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 def signup(request: SignupRequest, db: Session = Depends(get_db)):
 
     # Check if user already exists
-    existing_user = db.query(User).filter(User.email == request.email).first()
+    existing_user = db.query(User).filter(User.username == request.username).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
 
@@ -23,7 +23,7 @@ def signup(request: SignupRequest, db: Session = Depends(get_db)):
 
     # Create user
     new_user = User(
-        email=request.email,
+        username=request.username,
         hashed_password=hashed_pw
     )
 

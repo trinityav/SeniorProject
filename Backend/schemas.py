@@ -12,3 +12,9 @@ class UserResponse(BaseModel):
     age: int
     schedule: str
 
+class SignupRequest(BaseModel):
+    username: str
+    password: str
+
+class SignupResponse(BaseModel):
+    message: str
