@@ -1,13 +1,13 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
-from database import Base
+from Backend.database import Base
 
 class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True)
-    password = Column(String)
+    username = Column(String, unique=True)
+    hashed_password = Column(String, nullable=False)
     age = Column(Integer)
     schedule = Column(String)
     
@@ -48,10 +48,3 @@ class Schedule(Base):
     exercise_name = Column(String)
     sets = Column(String)
     reps = Column(String)
-
-class SignupRequest(Base):
-    email = Column(String)
-    password = Column(String)
-
-class SignupResponse(Base):
-    message = Column(String)

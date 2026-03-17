@@ -1,14 +1,13 @@
 from fastapi import FastAPI, Depends
-from sqlalchemy.orm import Session
-import models
-import schemas
-from database import SessionLocal, engine
-from models import Base
+from Backend.database import SessionLocal, engine
+from Backend import models
+from Backend import schemas
+from Backend.auth.routes import router as auth_router
 
+# this creates the tables 
 models.Base.metadata.create_all(bind=engine)
-
 app = FastAPI()
-
+app.include_router(auth_router)
 
 def get_db():
     db = SessionLocal()
