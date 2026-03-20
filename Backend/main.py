@@ -1,8 +1,11 @@
 from fastapi import FastAPI, Depends
-from Backend.database import SessionLocal, engine
-from Backend import models
-from Backend import schemas
-from Backend.auth.routes import router as auth_router
+from database import SessionLocal, engine
+import models
+import schemas
+from auth.routes import router as auth_router
+
+
+#Made changes
 
 # this creates the tables 
 models.Base.metadata.create_all(bind=engine)
