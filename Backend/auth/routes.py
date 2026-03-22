@@ -7,6 +7,11 @@ from Backend.auth.utils import hash_password
 from Backend.database import get_db
 from Backend.models import User
 
+
+from Backend.auth.jwt import create_access_token
+from Backend.auth.utils import verify_password
+
+
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/signup", response_model=SignupResponse)
@@ -32,3 +37,20 @@ def signup(request: SignupRequest, db: Session = Depends(get_db)):
     db.refresh(new_user)
 
     return SignupResponse(message="User created successfully")
+
+
+# Login flow that uses token to verify 
+
+@router.post("/login")
+def login(request: SignupRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.username == request.username).first()
+
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid username or password")
+
+    if not verify_password(request.password, user.hashed_password):
+        raise HTTPException(status_code=400, detail="Invalid username or password")
+
+    token = create_access_token({"sub": user.username})
+
+    return {"access_token": token, "token_type": "bearer"}
