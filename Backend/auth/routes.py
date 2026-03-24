@@ -8,8 +8,8 @@ from database import get_db
 from models import User
 
 
-from Backend.auth.jwt import create_access_token
-from Backend.auth.utils import verify_password
+from auth.jwt import create_access_token
+from auth.utils import verify_password
 
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
