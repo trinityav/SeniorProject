@@ -7,7 +7,6 @@ from auth.utils import hash_password
 from database import get_db
 from models import User
 
-
 from auth.jwt import create_access_token
 from auth.utils import verify_password
 
