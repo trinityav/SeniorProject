@@ -4,6 +4,9 @@ import models
 import schemas
 from auth.routes import router as auth_router
 from ai_engine import generate_workout_plan
+from pydantic import BaseModel
+from typing import List
+
 
 
 #Made changes
