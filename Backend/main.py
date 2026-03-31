@@ -57,9 +57,6 @@ class AIRequest(BaseModel):
     goal: str
 
 
-@app.get("/")
-def home():
-    return {"message": "Backend is running"}
 
 
 @app.post("/ai_plan")
@@ -76,3 +73,54 @@ def ai_plan(
     )
 
     return {"user": current_user.username, "plan": plan}
+
+# New modifications
+@app.post("/save_plan")
+def save_plan(request: schemas.SaveWorkoutPlanRequest, db: Session = Depends(get_db)):
+    # Implementation for saving workout plan
+    return {"message": "Workout plan saved"}
+
+@app.get("/schedule/{program}")
+def get_schedule(program: str, db: Session = Depends(get_db)):
+    schedule = db.query(models.Schedule).filter(models.Schedule.program == program).all()
+
+    return schedule
+
+@app.get("/routines")
+def get_routines(db: Session = Depends(get_db)):
+    routines = db.query(models.Routine).all()
+    return routines
+
+@app.get("/exercises")
+def get_exercises(db: Session = Depends(get_db)):
+    exercises = db.query(models.Exercise).all()
+    return exercises
+
+@app.get("/routine/{routine_id}")
+def get_routine(routine_id: int, db: Session = Depends(get_db)):
+    routine = db.query(models.Routine).filter(models.Routine.id == routine_id).first()
+    if not routine:
+        return {"error": "Routine not found"}
+
+    exercises = db.query(models.RoutineExercise).filter(models.RoutineExercise.routine_id == routine_id).all()
+
+    return {
+        "routine_name": routine.routine_name,
+        "exercises": exercises
+    }
+    
+@app.post("/log_workout")
+def log_workout(entry: schemas.WorkoutLogEntry, db: Session = Depends(get_db)):
+    # Implementation for logging workout
+    return {"message": "Workout logged"}
+
+@app.get("/workout_logs/{user_id}")
+def get_workout_logs(user_id: int, db: Session = Depends(get_db)):
+    # Implementation for retrieving workout logs
+    return {"logs": []}
+
+@app.get("/progress/{user_id}")
+def get_progress(user_id: int, db: Session = Depends(get_db)):
+    # Implementation for calculating and returning progress
+    return {"progress": "Progress data here"}
+
