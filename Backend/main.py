@@ -5,9 +5,9 @@ from typing import List
 from Backend.database import engine, get_db
 import Backend.models as models
 import Backend.schemas as schemas
-from Backend.routes import router as auth_router
 from Backend.ai_engine import generate_workout_plan
-from Backend.dependencies import get_current_user
+from Backend.auth.routes import router as auth_router
+from Backend.auth.dependencies import get_current_user
 
 #Made changes
 
