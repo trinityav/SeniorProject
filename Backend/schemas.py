@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from typing import List
 
 class ProfileUpdate(BaseModel):
     age: Optional[int] = None
