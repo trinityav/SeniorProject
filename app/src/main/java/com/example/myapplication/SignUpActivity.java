@@ -88,9 +88,18 @@ public class SignUpActivity extends AppCompatActivity {
                                     );
                                 } else {
                                     repository.createUser(username, email, password);
+                                    UserEntity newUser = repository.getUserByEmail(email);
                                     runOnUiThread(() -> {
                                         Toast.makeText(SignUpActivity.this, "Account created successfully", Toast.LENGTH_SHORT).show();
-                                        Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                                        
+                                        // Auto-login after signup to maintain session through setup flow
+                                        if (newUser != null) {
+                                            SessionManager sessionManager = new SessionManager(this);
+                                            sessionManager.loginUser(newUser.id);
+                                        }
+
+                                        // Redirect to User Details as requested
+                                        Intent intent = new Intent(SignUpActivity.this, UserDetails.class);
                                         startActivity(intent);
                                         finish();
                                     });

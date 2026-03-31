@@ -35,6 +35,17 @@
         app:layout_constraintTop_toBottomOf="@id/tvStatsTitle"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Container for the white card that ensures it covers the bottom area -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="130dp"
+        android:background="@color/main_container_background"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/statsCard"
         android:layout_width="0dp"
@@ -53,14 +64,13 @@
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
             android:paddingTop="28dp"
-            android:paddingBottom="100dp">
+            android:paddingBottom="120dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:weightSum="3">
-
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -69,6 +79,7 @@
                     android:layout_marginEnd="6dp"
                     android:orientation="vertical"
                     android:gravity="center"
+                    android:background="@drawable/bg_stat_pill"
                     android:padding="12dp">
 
                     <TextView
@@ -85,7 +96,7 @@
                         android:layout_height="wrap_content"
                         android:text="Workouts"
                         android:textSize="11sp"
-                        android:textColor="#555555"
+                        android:textColor="@color/secondary_text"
                         android:gravity="center" />
 
                 </LinearLayout>
@@ -99,6 +110,7 @@
                     android:layout_marginEnd="6dp"
                     android:orientation="vertical"
                     android:gravity="center"
+                    android:background="@drawable/bg_stat_pill"
                     android:padding="12dp">
 
                     <TextView
@@ -115,7 +127,7 @@
                         android:layout_height="wrap_content"
                         android:text="Day Streak"
                         android:textSize="11sp"
-                        android:textColor="#555555"
+                        android:textColor="@color/secondary_text"
                         android:gravity="center" />
 
                 </LinearLayout>
@@ -128,6 +140,7 @@
                     android:layout_marginStart="6dp"
                     android:orientation="vertical"
                     android:gravity="center"
+                    android:background="@drawable/bg_stat_pill"
                     android:padding="12dp">
 
                     <TextView
@@ -144,7 +157,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="Last Day Active"
-                        android:textColor="#555555"
+                        android:textColor="@color/secondary_text"
                         android:textSize="11sp" />
 
                 </LinearLayout>
@@ -157,10 +170,9 @@
                 android:text="Weekly Activity"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="#1A1A2E"
+                android:textColor="@color/primary_text"
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="10dp" />
-
 
             <LinearLayout
                 android:id="@+id/barChartPlaceholder"
@@ -168,6 +180,7 @@
                 android:layout_height="160dp"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:background="@drawable/bg_stat_pill"
                 android:padding="16dp">
 
                 <TextView
@@ -182,13 +195,11 @@
                     android:layout_height="wrap_content"
                     android:text="Workout frequency chart"
                     android:textSize="13sp"
-                    android:textColor="#888888"
+                    android:textColor="@color/secondary_text"
                     android:gravity="center"
                     android:layout_marginTop="6dp" />
 
-
             </LinearLayout>
-
 
             <TextView
                 android:layout_width="wrap_content"
@@ -196,7 +207,7 @@
                 android:text="Water Intake Log"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="#1A1A2E"
+                android:textColor="@color/primary_text"
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="10dp" />
 
@@ -204,9 +215,9 @@
                 android:id="@+id/lineChartPlaceholder"
                 android:layout_width="match_parent"
                 android:layout_height="160dp"
-
                 android:orientation="vertical"
                 android:gravity="center"
+                android:background="@drawable/bg_stat_pill"
                 android:padding="16dp">
 
                 <TextView
@@ -221,10 +232,9 @@
                     android:layout_height="wrap_content"
                     android:text="Water intake line chart"
                     android:textSize="13sp"
-                    android:textColor="#888888"
+                    android:textColor="@color/secondary_text"
                     android:gravity="center"
                     android:layout_marginTop="6dp" />
-
 
             </LinearLayout>
 
@@ -235,7 +245,7 @@
                 android:text="Recent Workouts"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="#1A1A2E"
+                android:textColor="@color/primary_text"
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="10dp" />
 
@@ -245,6 +255,7 @@
                 android:orientation="horizontal"
                 android:padding="14dp"
                 android:gravity="center_vertical"
+                android:background="@drawable/bg_stat_pill"
                 android:layout_marginBottom="8dp">
 
                 <TextView
@@ -267,7 +278,7 @@
                         android:text="Workouts Completed"
                         android:textSize="14sp"
                         android:textStyle="bold"
-                        android:textColor="#1A1A2E" />
+                        android:textColor="@color/primary_text" />
 
                     <TextView
                         android:id="@+id/tvRecentWorkout1Date"
@@ -275,7 +286,7 @@
                         android:layout_height="wrap_content"
                         android:text="Most recent workout"
                         android:textSize="12sp"
-                        android:textColor="#777777"
+                        android:textColor="@color/secondary_text"
                         android:layout_marginTop="2dp" />
 
                 </LinearLayout>

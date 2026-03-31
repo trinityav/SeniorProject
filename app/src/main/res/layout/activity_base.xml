@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/main_container_background">
 
     <!-- Container for activity-specific content -->
     <FrameLayout
@@ -17,6 +18,8 @@
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/card_background"
+        app:elevation="0dp"
         app:menu="@menu/bottom_nav_menu"
         app:itemIconTint="@color/bottom_nav_icon_tint"
         app:itemTextColor="@color/bottom_nav_text_tint"/>

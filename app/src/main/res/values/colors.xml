@@ -2,4 +2,13 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Light Mode Colors -->
+    <color name="card_background">#FFFFFF</color>
+    <color name="main_container_background">#EAF4F4</color>
+    <color name="primary_text">#111111</color>
+    <color name="secondary_text">#666666</color>
+    <color name="divider_color">#F0F0F0</color>
+    <color name="settings_text">#1A1A2E</color>
+    <color name="gradient_end_color">#FFFFFF</color>
 </resources>

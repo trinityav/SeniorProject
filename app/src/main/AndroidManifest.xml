@@ -12,6 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
         <activity
+            android:name=".UserDetails"
+            android:exported="false" />
+        <activity
+            android:name=".SchedulePreferencesActivity"
+            android:exported="false" />
+        <activity
             android:name=".BaseActivity"
             android:exported="false" />
         <activity
@@ -26,7 +32,9 @@
         <activity
             android:name=".HomeScreen"
             android:exported="false" />
-        <activity android:name=".WorkoutsActivity" android:exported="false" />
+        <activity
+            android:name=".WorkoutsActivity"
+            android:exported="false" />
         <activity
             android:name=".LogIn"
             android:exported="true">
@@ -36,12 +44,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
         <activity android:name=".SignUpActivity" />
-
         <activity android:name=".LoginActivity" />
-
     </application>
 
 </manifest>

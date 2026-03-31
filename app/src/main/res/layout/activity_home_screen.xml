@@ -11,7 +11,7 @@
         android:id="@+id/homeContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="100dp">
+        android:paddingBottom="120dp">
 
         <!-- Greeting text -->
         <TextView
@@ -40,7 +40,7 @@
             android:layout_marginTop="28dp"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
-            app:cardBackgroundColor="#F0FAF0"
+            app:cardBackgroundColor="@color/card_background"
             app:layout_constraintTop_toBottomOf="@id/greetingText"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
@@ -64,7 +64,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#CCE3DE"
+                    android:background="@color/divider_color"
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="14dp" />
 
@@ -95,7 +95,7 @@
                             android:text="No upcoming workout scheduled"
                             android:textSize="15sp"
                             android:textStyle="bold"
-                            android:textColor="#1A1A2E" />
+                            android:textColor="@color/primary_text" />
 
                         <TextView
                             android:id="@+id/tvUpcomingWorkoutName"
@@ -103,7 +103,7 @@
                             android:layout_height="wrap_content"
                             android:text="Schedule one in the Stats page"
                             android:textSize="12sp"
-                            android:textColor="#777777"
+                            android:textColor="@color/secondary_text"
                             android:layout_marginTop="2dp" />
 
                     </LinearLayout>
@@ -123,7 +123,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#CCE3DE"
+                    android:background="@color/divider_color"
                     android:layout_marginTop="14dp"
                     android:layout_marginBottom="14dp" />
 
@@ -146,7 +146,7 @@
                         android:layout_weight="1"
                         android:text="Total Workouts Completed"
                         android:textSize="14sp"
-                        android:textColor="#555555"
+                        android:textColor="@color/secondary_text"
                         android:layout_marginStart="12dp" />
 
                     <TextView
@@ -173,7 +173,7 @@
             android:layout_marginTop="16dp"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
-            app:cardBackgroundColor="#F0FAF0"
+            app:cardBackgroundColor="@color/card_background"
             app:layout_constraintTop_toBottomOf="@id/upcomingWorkoutCard"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
@@ -205,14 +205,14 @@
                         android:text="Chat with AI Coach"
                         android:textSize="15sp"
                         android:textStyle="bold"
-                        android:textColor="#1A1A2E" />
+                        android:textColor="@color/primary_text" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Ask anything about your workouts"
                         android:textSize="12sp"
-                        android:textColor="#777777"
+                        android:textColor="@color/secondary_text"
                         android:layout_marginTop="2dp" />
 
                 </LinearLayout>

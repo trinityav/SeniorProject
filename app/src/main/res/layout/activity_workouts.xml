@@ -31,7 +31,7 @@
         app:cardCornerRadius="28dp"
         app:cardElevation="6dp"
         app:cardUseCompatPadding="true"
-        app:cardBackgroundColor="#EEF6F5"
+        app:cardBackgroundColor="@color/main_container_background"
         app:layout_constraintTop_toBottomOf="@id/tvWorkoutsTitle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
