@@ -12,6 +12,10 @@ Base.metadata.create_all(bind=engine)
 # INSERT EXERCISES
 def insert_exercises(db):
     for w in workouts:
+        existing = db.query(Exercise).filter(Exercise.name == w["name"]).first()
+        if existing:
+            continue
+
         exercise = Exercise(
             name=w["name"],
             targeted_muscle_group=w["targeted_muscle_group"],
@@ -20,6 +24,7 @@ def insert_exercises(db):
         )
         db.add(exercise)
     db.commit()
+    
 
 
 
@@ -27,10 +32,14 @@ def insert_exercises(db):
 def insert_routines(db):
     for routine_name, exercises in routines.items():
         # Create routine row
-        routine = Routine(routine_name=routine_name)
-        db.add(routine)
-        db.commit()
-        db.refresh(routine)
+        existing_routine = db.query(Routine).filter(Routine.routine_name == routine_name).first()
+        if existing_routine:
+            routine = existing_routine
+        else:
+            routine = Routine(routine_name=routine_name)
+            db.add(routine)
+            db.commit()
+            db.refresh(routine)
 
         # Insert exercises for this routine
         for ex in exercises:
@@ -40,6 +49,20 @@ def insert_routines(db):
                 sets=ex["sets"],
                 reps=ex["reps"]
             )
+            existing_ex = (
+                db.query(RoutineExercise)
+                .filter(
+                    RoutineExercise.routine_id == routine.id,
+                    RoutineExercise.exercise_name == ex["exercise"],
+                    RoutineExercise.sets == ex["sets"],
+                    RoutineExercise.reps == ex["reps"]
+                )
+                .first()
+            )
+
+            if existing_ex:
+                continue
+            
             db.add(routine_ex)
 
     db.commit()
@@ -57,6 +80,22 @@ def insert_schedule(db):
                     sets=ex["sets"],
                     reps=ex["reps"]
                 )
+                
+                existing_entry = (
+                    db.query(Schedule)
+                    .filter(
+                        Schedule.program == program,
+                        Schedule.day == day,
+                        Schedule.exercise_name == ex["exercise"],
+                        Schedule.sets == ex["sets"],
+                        Schedule.reps == ex["reps"]
+                    )
+                    .first()
+                )
+
+                if existing_entry:
+                    continue    
+            
                 db.add(entry)
 
     db.commit()

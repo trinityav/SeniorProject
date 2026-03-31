@@ -1,14 +1,11 @@
 # signup endpoint
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-
-from schemas import SignupRequest, SignupResponse
-from auth.utils import hash_password
+from schemas import SignupRequest, SignupResponse, LoginRequest, TokenResponse
+from utils import hash_password, verify_password
 from database import get_db
 from models import User
-
-from auth.jwt import create_access_token
-from auth.utils import verify_password
+from jwt import create_access_token
 
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -20,8 +17,8 @@ def signup(request: SignupRequest, db: Session = Depends(get_db)):
     # Check if user already exists
     existing_user = db.query(User).filter(User.username == request.username).first()
     if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-
+        raise HTTPException(status_code=400, detail="Username already registered")
+    
     # Hash password
     hashed_pw = hash_password(request.password)
 
@@ -39,9 +36,8 @@ def signup(request: SignupRequest, db: Session = Depends(get_db)):
 
 
 # Login flow that uses token to verify 
-
-@router.post("/login")
-def login(request: SignupRequest, db: Session = Depends(get_db)):
+@router.post("/login", response_model=TokenResponse)
+def login(request: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == request.username).first()
 
     if not user:
@@ -53,3 +49,4 @@ def login(request: SignupRequest, db: Session = Depends(get_db)):
     token = create_access_token({"sub": user.username})
 
     return {"access_token": token, "token_type": "bearer"}
+

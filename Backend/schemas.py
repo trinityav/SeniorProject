@@ -1,16 +1,19 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class ProfileUpdate(BaseModel):
-    user_id: int
-    age: int
-    schedule: str
+    age: Optional[int] = None
+    schedule: Optional[str] = None
 
 
 class UserResponse(BaseModel):
     id: int
-    email: str
-    age: int
-    schedule: str
+    username: str
+    age: Optional[int] = None
+    schedule: Optional[str] = None
+
+    class Config:
+        from_attributes = True
 
 class SignupRequest(BaseModel):
     username: str
@@ -18,3 +21,11 @@ class SignupRequest(BaseModel):
 
 class SignupResponse(BaseModel):
     message: str
+    
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str
