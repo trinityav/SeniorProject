@@ -57,9 +57,6 @@ class AIRequest(BaseModel):
     goal: str
 
 
-@app.get("/")
-def home():
-    return {"message": "Backend is running"}
 
 
 @app.post("/ai_plan")
