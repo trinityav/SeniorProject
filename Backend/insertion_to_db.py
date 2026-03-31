@@ -1,8 +1,8 @@
-from database import SessionLocal, engine
-from models import Base, Exercise, Routine, RoutineExercise, Schedule
-from workout_data import workouts
-from workout_routines import routines
-from workout_schedule import schedule
+from Backend.database import SessionLocal, engine
+from Backend.models import Base, Exercise, Routine, RoutineExercise, Schedule
+from Backend.workout_data import workouts
+from Backend.workout_routines import routines
+from Backend.workout_schedule import schedule
 
 # Create all tables
 Base.metadata.create_all(bind=engine)

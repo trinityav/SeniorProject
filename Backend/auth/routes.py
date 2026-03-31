@@ -1,12 +1,11 @@
 # signup endpoint
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from schemas import SignupRequest, SignupResponse, LoginRequest, TokenResponse
-from utils import hash_password, verify_password
-from database import get_db
-from models import User
-from jwt import create_access_token
-
+from Backend.schemas import SignupRequest, SignupResponse, LoginRequest, TokenResponse
+from Backend.utils import hash_password, verify_password
+from Backend.database import get_db
+from Backend.models import User
+from Backend.jwt import create_access_token
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
