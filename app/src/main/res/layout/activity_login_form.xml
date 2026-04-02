@@ -18,7 +18,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tint="#FFFFFF" />
 
-    <!-- Blue header title -->
     <TextView
         android:id="@+id/tvHeaderTitle"
         android:layout_width="wrap_content"
@@ -33,7 +32,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Card: top corners rounded, bottom flush -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/cardLogin"
         android:layout_width="0dp"
@@ -57,7 +55,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Email"
+                android:text="Username"
                 android:textStyle="bold"
                 android:textSize="15sp"
                 android:textColor="#1A1A2E" />
@@ -68,8 +66,8 @@
                 android:layout_height="48dp"
                 android:layout_marginTop="6dp"
                 android:background="@android:color/transparent"
-                android:hint="cain@example.com"
-                android:inputType="textEmailAddress"
+                android:hint="Enter your username"
+                android:inputType="text"
                 android:padding="4dp"
                 android:textSize="15sp"
                 android:textColorHint="#AAAAAA" />

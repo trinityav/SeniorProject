@@ -6,24 +6,27 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.myapplication.data.repo.FitnessRepository;
-
+// Landing screen for auth
 public class LogIn extends AppCompatActivity {
 
     private Button signUpButton;
     private Button signInButton;
 
-    private FitnessRepository repository;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // If already logged in, skip auth screen
+        SessionManager sessionManager = new SessionManager(this);
+        if (sessionManager.isLoggedIn()) {
+            Intent intent = new Intent(LogIn.this, HomeScreen.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_login);
-
-        repository = new FitnessRepository(this);
-
-        // create admin user in background if it does not exist
-        new Thread(() -> repository.ensureAdminUserExists()).start();
 
         signUpButton = findViewById(R.id.signUpButton);
         signInButton = findViewById(R.id.signInButton);

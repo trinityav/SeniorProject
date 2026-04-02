@@ -10,8 +10,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.myapplication.data.local.UserEntity;
-import com.example.myapplication.data.repo.FitnessRepository;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -21,14 +22,14 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnLogin;
     private TextView tvGoSignup;
 
-    private FitnessRepository repository;
+    private AuthApi.AuthService authService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_form);
 
-        repository = new FitnessRepository(this);
+        authService = AuthApi.getService(this);
 
         btnBack = findViewById(R.id.btnBack);
         etEmail = findViewById(R.id.etEmail);
@@ -39,31 +40,41 @@ public class LoginActivity extends AppCompatActivity {
         btnBack.setOnClickListener(v -> finish());
 
         btnLogin.setOnClickListener(v -> {
-            String email = etEmail.getText().toString().trim();
+            // This field is now used for username
+            String username = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
 
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(LoginActivity.this, "Please enter email and password", Toast.LENGTH_SHORT).show();
+            if (username.isEmpty() || password.isEmpty()) {
+                Toast.makeText(LoginActivity.this, "Please enter username and password", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            new Thread(() -> {
-                UserEntity user = repository.getUserByEmailAndPassword(email, password);
+            AuthApi.LoginRequest request = new AuthApi.LoginRequest(username, password);
 
-                runOnUiThread(() -> {
-                    if (user != null) {
+            authService.login(request).enqueue(new Callback<AuthApi.TokenResponse>() {
+                @Override
+                public void onResponse(Call<AuthApi.TokenResponse> call, Response<AuthApi.TokenResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        String token = response.body().getAccessToken();
+
+                        SessionManager sessionManager = new SessionManager(LoginActivity.this);
+                        sessionManager.saveLoginSession(token, username);
+
                         Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
-                        SessionManager sessionManager = new SessionManager(this);
-                        sessionManager.loginUser(user.id);
 
                         Intent intent = new Intent(LoginActivity.this, HomeScreen.class);
                         startActivity(intent);
                         finish();
                     } else {
-                        Toast.makeText(LoginActivity.this, "Invalid email or password", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "Invalid username or password", Toast.LENGTH_SHORT).show();
                     }
-                });
-            }).start();
+                }
+
+                @Override
+                public void onFailure(Call<AuthApi.TokenResponse> call, Throwable t) {
+                    Toast.makeText(LoginActivity.this, "Server error. Check connection.", Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
         tvGoSignup.setOnClickListener(v -> {
