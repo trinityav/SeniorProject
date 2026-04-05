@@ -36,7 +36,7 @@ def answer_fitness_question(question: str) -> str:
 
 
 def run_chatbot():
-    print("💪 Fitness Chatbot (type 'exit' to quit)\n")
+    print("Fitness Chatbot (type 'exit' to quit)\n")
 
     while True:
         user_input = input("You: ")
