@@ -38,7 +38,7 @@ routines = {
         {"exercise": "Barbell Curls", "sets": "4", "reps": "10-12"},
         {"exercise": "Dumbbell cross body curls", "sets": "4", "reps": "10-12"},
         {"exercise": "Incline curl dumbbells using bench", "sets": "4", "reps": "10-12"},
-        {"exercise": "Cable Biceps curls using cable bar", "sets": "4", "reps": "10-12"}
+        {"exercise": "Cable Biceps curls using cable bar", "sets": "4", "reps": "10-12"},
     ],
     
     "Leg Day": [
@@ -53,7 +53,12 @@ routines = {
     ],
     
     "Abs": [
-        
+        {"exercise": "Crunches", "sets": "4", "reps": "10-12"},
+        {"exercise": "Leg raises lying down", "sets": "4", "reps": "10-12"},
+        {"exercise": "Hanging leg raise using bar", "sets": "4", "reps": "10-12"},
+        {"exercise": "Cable crunches", "sets": "4", "reps": "10-12"},
+        {"exercise": "Decline weighted crunches", "sets": "4", "reps": "10-12"},
+        {"exercise": "Weights abs twist machines", "sets": "4", "reps": "10-12"},
     ],
 
     
