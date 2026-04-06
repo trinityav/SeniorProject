@@ -70,5 +70,56 @@ workouts = [
         "equipment": "Bar or TRX",
         "difficulty": "Beginner-Intermediate"  
     },
+    # Biceps
+    {
+        "name": "Barbell Curls",
+        "targeted muscle group": "Biceps",
+        "equipment": "Barbell",
+        "difficulty": "Beginner-Intermediate" 
+    },
+    {
+        "name": "Cable Bicep Curls",
+        "targeted muscle group": "Biceps",
+        "equipment": "Cable Machine",
+        "difficulty": "Beginner" 
+    },
+    {
+        "name": "Cross-Body Dumbbell Curls",
+        "targeted muscle group": "Biceps",
+        "equipment": "Dumbbells",
+        "difficulty": "Beginner" 
+    },
+    {
+        "name": "Dumbbell Bicep Curls",
+        "targeted muscle group": "Biceps",
+        "equipment": "Dumbbells",
+        "difficulty": "Beginner" 
+    },
+    {
+        "name": "Incline Dumbbell Curls",
+        "targeted muscle group": "Biceps",
+        "equipment": "Dumbells Incline Bench",
+        "difficulty": "Intermediate" 
+    },
+    {
+        "name": "Hammer Curls",
+        "targeted muscle group": "Biceps Forearms",
+        "equipment": "Dumbells",
+        "difficulty": "Beginner" 
+    },
+    # Calves
+    {
+        "name": "Standing Calf Raises",
+        "targeted muscle group": "Calves",
+        "equipment": "Machine or Bodyweight",
+        "difficulty": "Beginner" 
+    },
+    # Core
+    {
+        "name": "Plank",
+        "targeted muscle group": "Core",
+        "equipment": "Bodyweight",
+        "difficulty": "Beginner" 
+    },
     
 ]
