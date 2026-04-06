@@ -33,4 +33,24 @@ schedule = {
             {"exercise": "Burpees", "sets": 3, "reps": "10"}
         ]
     }
+     "Intermediate_calisthenics": {
+        "push_day": [
+            {"exercise": "Decline Push-ups", "sets": 4, "reps": "12"},
+            {"exercise": "Dips", "sets": 4, "reps": "8-12"},
+            {"exercise": "Pseduo Planche Push-ups", "sets": 3, "reps": "8-10"},
+            {"exercise": "Diamond Push-ups", "sets": 3, "reps": "12"}
+        ],
+    "push_day": [
+            {"exercise": "Pull-ups", "sets": 4, "reps": "8-12"},
+            {"exercise": "Chin-ups", "sets": 3, "reps": "8-12"},
+            {"exercise": "Archer Rows", "sets": 3, "reps": "8"},
+            {"exercise": "Slow Negative Pull-ups", "sets": 3, "reps": "5"}
+        ],
+    "legs":[
+            {"exercise": "Jump Squats", "sets": 4, "reps": "8-12"},
+            {"exercise": "Bulgarian Split Squats", "sets": 3, "reps": "10"},
+            {"exercise": "Single-Leg Glute Bridge", "sets": 3, "reps": "12"},
+            {"exercise": "Hanging Leg Raises", "sets": 3, "reps": "12"}
+    ]
+     }
 }
