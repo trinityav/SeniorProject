@@ -14,7 +14,7 @@ class User(Base):
     weight = Column(Integer)
     fitness_level = Column(String)
     gender = Column(String)
-    fitness_goals = Column(String)
+    fitness_goal = Column(String)
     
 class Exercise(Base):
     __tablename__ = "exercises"
