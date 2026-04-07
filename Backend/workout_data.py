@@ -222,5 +222,91 @@ workouts = [
         "equipment": "Bench Dumbbells optional",
         "difficulty": "Intermediate" 
     },
+    {
+        "name": "Dumbell Lunges",
+        "targeted muscle group": "Quads-Glutes",
+        "equipment": "Dumbbells ",
+        "difficulty": "Beginner-Intermediate" 
+    },
+    {
+        "name": "Goblet Squats",
+        "targeted muscle group": "Quads-Glutes",
+        "equipment": "Dumbbell or Kettleball ",
+        "difficulty": "Beginner" 
+    },
+    {
+        "name": "Jump Squats",
+        "targeted muscle group": "Quads-Glutes",
+        "equipment": "Bodyweight ",
+        "difficulty": "Intermediate" 
+    },
+    {
+        "name": "Leg Press",
+        "targeted muscle group": "Quads-Glutes",
+        "equipment": "Leg Press Machine ",
+        "difficulty": "Beginner" 
+    },
+    {
+        "name": "Walking Lunges",
+        "targeted muscle group": "Quads-Glutes",
+        "equipment": "Bodyweight or Dumbells ",
+        "difficulty": "Beginner-Intermediate" 
+    },
+    # Shoulders exercises
+    {
+        "name": "Wall Handstand Hold",
+        "targeted muscle group": "Shoulders-Core",
+        "equipment": "Wall ",
+        "difficulty": "Advanced" 
+    },
+    {
+        "name": "Pike Push-ups",
+        "targeted muscle group": "Shoulders-Triceps",
+        "equipment": "Bodyweight ",
+        "difficulty": "Intermediate" 
+    },
+    #Triceps exercises
+    {
+        "name": "Cable Triceps Pushaway",
+        "targeted muscle group": "Triceps",
+        "equipment": "Cable Machine ",
+        "difficulty": "Beginner-Intermediate" 
+    },
+    {
+        "name": "Overhead Dumbell Extension",
+        "targeted muscle group": "Triceps",
+        "equipment": "Dumbell ",
+        "difficulty": "Beginner-Intermediate" 
+    },
+    {
+        "name": "Skull Crushers",
+        "targeted muscle group": "Triceps",
+        "equipment": "EZ Bar or Dumbell ",
+        "difficulty": "Intermediate" 
+    },
+    {
+        "name": "Tricep Pushdown",
+        "targeted muscle group": "Triceps",
+        "equipment": "Cable Machine ",
+        "difficulty": "Beginner" 
+    },
+    {
+        "name": "Bench Dips",
+        "targeted muscle group": "Triceps-Chest",
+        "equipment": "Bench ",
+        "difficulty": "Beginner" 
+    },
+    {
+        "name": "Diamond Push-ups",
+        "targeted muscle group": "Triceps-Chest",
+        "equipment": "Bodyweight",
+        "difficulty": "Intermediate" 
+    },
+    {
+        "name": "Weighted Dips",
+        "targeted muscle group": "Triceps-Chest",
+        "equipment": "Dip Bars Weight Belt ",
+        "difficulty": "Advanced" 
+    },
     
 ]
