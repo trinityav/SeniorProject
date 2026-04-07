@@ -12,6 +12,11 @@ class UserResponse(BaseModel):
     username: str
     age: Optional[int] = None
     schedule: Optional[str] = None
+    gender = str
+    weight = int
+    height = float
+    fitness_level = str
+    fitness_goal = str
 
     class Config:
         from_attributes = True
