@@ -9,7 +9,6 @@
     android:background="@drawable/bg_gradient_blue"
     tools:context=".Stats">
 
-    <!-- Page title on the gradient -->
     <TextView
         android:id="@+id/tvStatsTitle"
         android:layout_width="wrap_content"
@@ -35,17 +34,6 @@
         app:layout_constraintTop_toBottomOf="@id/tvStatsTitle"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Container for the white card that ensures it covers the bottom area -->
-    <View
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="130dp"
-        android:background="@color/main_container_background"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
     <androidx.core.widget.NestedScrollView
         android:id="@+id/statsCard"
         android:layout_width="0dp"
@@ -64,8 +52,9 @@
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
             android:paddingTop="28dp"
-            android:paddingBottom="120dp">
+            android:paddingBottom="100dp">
 
+            <!-- Stat pills row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -96,12 +85,11 @@
                         android:layout_height="wrap_content"
                         android:text="Workouts"
                         android:textSize="11sp"
-                        android:textColor="@color/secondary_text"
+                        android:textColor="#555555"
                         android:gravity="center" />
 
                 </LinearLayout>
 
-                <!-- Current streak -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -127,12 +115,11 @@
                         android:layout_height="wrap_content"
                         android:text="Day Streak"
                         android:textSize="11sp"
-                        android:textColor="@color/secondary_text"
+                        android:textColor="#555555"
                         android:gravity="center" />
 
                 </LinearLayout>
 
-                <!-- Last workout -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -156,58 +143,140 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="Last Day Active"
-                        android:textColor="@color/secondary_text"
+                        android:text="Last Active"
+                        android:textColor="#555555"
                         android:textSize="11sp" />
 
                 </LinearLayout>
 
             </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Weekly Activity"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/primary_text"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="10dp" />
-
+            <!-- Weekly Activity / Calendar -->
             <LinearLayout
-                android:id="@+id/barChartPlaceholder"
                 android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:background="@drawable/bg_stat_pill"
-                android:padding="16dp">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="10dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="📊"
-                    android:textSize="36sp"
-                    android:gravity="center" />
+                    android:layout_weight="1"
+                    android:text="Workout Schedule"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A2E" />
 
                 <TextView
+                    android:id="@+id/tvCalendarMonthYear"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Workout frequency chart"
+                    android:text="April 2026"
                     android:textSize="13sp"
-                    android:textColor="@color/secondary_text"
+                    android:textColor="#0078AE"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvCalendarPrev"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:text="‹"
+                    android:textSize="20sp"
+                    android:textColor="#0078AE"
                     android:gravity="center"
-                    android:layout_marginTop="6dp" />
+                    android:layout_marginStart="8dp" />
+
+                <TextView
+                    android:id="@+id/tvCalendarNext"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:text="›"
+                    android:textSize="20sp"
+                    android:textColor="#0078AE"
+                    android:gravity="center" />
 
             </LinearLayout>
 
+            <!-- Calendar card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_stat_pill"
+                android:padding="12dp">
+
+                <!-- Day headers -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="7">
+
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Su" android:gravity="center" android:textSize="11sp" android:textColor="#0078AE" android:textStyle="bold" android:paddingBottom="6dp" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Mo" android:gravity="center" android:textSize="11sp" android:textColor="#0078AE" android:textStyle="bold" android:paddingBottom="6dp" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Tu" android:gravity="center" android:textSize="11sp" android:textColor="#0078AE" android:textStyle="bold" android:paddingBottom="6dp" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="We" android:gravity="center" android:textSize="11sp" android:textColor="#0078AE" android:textStyle="bold" android:paddingBottom="6dp" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Th" android:gravity="center" android:textSize="11sp" android:textColor="#0078AE" android:textStyle="bold" android:paddingBottom="6dp" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Fr" android:gravity="center" android:textSize="11sp" android:textColor="#0078AE" android:textStyle="bold" android:paddingBottom="6dp" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Sa" android:gravity="center" android:textSize="11sp" android:textColor="#0078AE" android:textStyle="bold" android:paddingBottom="6dp" />
+
+                </LinearLayout>
+
+                <!-- Calendar grid — populated dynamically by StatsActivity.java -->
+                <GridLayout
+                    android:id="@+id/calendarGrid"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="7"
+                    android:useDefaultMargins="false" />
+
+            </LinearLayout>
+
+            <!-- Calendar legend -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical">
+
+                <View
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:background="@drawable/bg_cal_day_workout" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" Workout scheduled"
+                    android:textSize="11sp"
+                    android:textColor="#555555"
+                    android:layout_marginEnd="12dp" />
+
+                <View
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:background="@drawable/bg_cal_day_done" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" Completed"
+                    android:textSize="11sp"
+                    android:textColor="#555555" />
+
+            </LinearLayout>
+
+            <!-- Water Intake -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Water Intake Log"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@color/primary_text"
+                android:textColor="#1A1A2E"
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="10dp" />
 
@@ -215,37 +284,46 @@
                 android:id="@+id/lineChartPlaceholder"
                 android:layout_width="match_parent"
                 android:layout_height="160dp"
+                android:background="@drawable/bg_chart_placeholder"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:background="@drawable/bg_stat_pill"
                 android:padding="16dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="📈"
+                    android:text="💧"
                     android:textSize="36sp"
                     android:gravity="center" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Water intake line chart"
+                    android:text="Water intake chart"
                     android:textSize="13sp"
-                    android:textColor="@color/secondary_text"
+                    android:textColor="#888888"
                     android:gravity="center"
                     android:layout_marginTop="6dp" />
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Coming soon with MPAndroidChart"
+                    android:textSize="11sp"
+                    android:textColor="#AAAAAA"
+                    android:gravity="center"
+                    android:layout_marginTop="2dp" />
+
             </LinearLayout>
 
-            <!-- ── Recent Workout History ────────────────────────────── -->
+            <!-- Recent Workouts -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Recent Workouts"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@color/primary_text"
+                android:textColor="#1A1A2E"
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="10dp" />
 
@@ -253,9 +331,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:background="@drawable/bg_stat_pill"
                 android:padding="14dp"
                 android:gravity="center_vertical"
-                android:background="@drawable/bg_stat_pill"
                 android:layout_marginBottom="8dp">
 
                 <TextView
@@ -275,18 +353,18 @@
                         android:id="@+id/tvRecentWorkout1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Workouts Completed"
+                        android:text="No workouts yet"
                         android:textSize="14sp"
                         android:textStyle="bold"
-                        android:textColor="@color/primary_text" />
+                        android:textColor="#1A1A2E" />
 
                     <TextView
                         android:id="@+id/tvRecentWorkout1Date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Most recent workout"
+                        android:text="Complete your first workout!"
                         android:textSize="12sp"
-                        android:textColor="@color/secondary_text"
+                        android:textColor="#777777"
                         android:layout_marginTop="2dp" />
 
                 </LinearLayout>
@@ -299,6 +377,20 @@
                     android:textColor="#0078AE" />
 
             </LinearLayout>
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEditSchedule"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="24dp"
+                android:text="✏️  Edit Schedule"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                app:backgroundTint="#0078AE"
+                app:cornerRadius="28dp"
+                app:elevation="0dp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
