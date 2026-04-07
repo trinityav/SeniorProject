@@ -7,7 +7,11 @@ from Backend.workout_schedule import schedule
 # Create all tables
 Base.metadata.create_all(bind=engine)
 
-
+def get_first_existing(data, keys, default=None):
+    for key in keys:
+        if key in data and data[key] not in [None, ""]:
+            return data[key]
+    return default
 
 # INSERT EXERCISES
 def insert_exercises(db):
@@ -16,16 +20,25 @@ def insert_exercises(db):
         if existing:
             continue
 
+        targeted_muscle_group = get_first_existing(
+            w,
+            ["targeted_muscle_group", "targeted muscle group", "targetedmuscle_group"]
+        )
+
+        if not targeted_muscle_group:
+            print(f"Skipping exercise '{w.get('name', 'Unknown')}' because targeted muscle group is missing")
+            continue
+
         exercise = Exercise(
             name=w["name"],
-            targeted_muscle_group=w["targeted_muscle_group"],
+            targeted_muscle_group=targeted_muscle_group,
             equipment=w["equipment"],
             difficulty=w["difficulty"]
         )
         db.add(exercise)
+
     db.commit()
     
-
 
 
 # INSERT ROUTINES + ROUTINE EXERCISES

@@ -33,7 +33,8 @@ schedule = {
             {"exercise": "Burpees", "sets": 3, "reps": "10"}
         ]
     }
-     "Intermediate_calisthenics": {
+    
+    "Intermediate_calisthenics": {
         "push_day": [
             {"exercise": "Decline Push-ups", "sets": 4, "reps": "12"},
             {"exercise": "Dips", "sets": 4, "reps": "8-12"},
@@ -52,5 +53,5 @@ schedule = {
             {"exercise": "Single-Leg Glute Bridge", "sets": 3, "reps": "12"},
             {"exercise": "Hanging Leg Raises", "sets": 3, "reps": "12"}
     ]
-     }
+    }
 }
