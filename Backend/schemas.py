@@ -5,6 +5,12 @@ from typing import List
 class ProfileUpdate(BaseModel):
     age: Optional[int] = None
     schedule: Optional[str] = None
+    gender = str
+    weight = int
+    height = float
+    fitness_level = str
+    fitness_goal = str
+    available_days: str
 
 
 class UserResponse(BaseModel):
@@ -17,6 +23,7 @@ class UserResponse(BaseModel):
     height = float
     fitness_level = str
     fitness_goal = str
+    
 
     class Config:
         from_attributes = True
