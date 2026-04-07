@@ -1,6 +1,26 @@
 # Routines for different muscle groups and fitness levels
 
 workouts = [
+    # Abs exercises
+    {
+        "name": "Cable Crunches",
+        "targeted muscle group": "Abs",
+        "equipment": "Cable Machine",
+        "difficulty": "Intermediate"
+    },
+    {
+        "name": "Crunches",
+        "targeted muscle group": "Abs",
+        "equipment": "Bodyweight",
+        "difficulty": "Beginner"  
+    },
+    {
+        "name": "Decline Weighted Crunches",
+        "targeted muscle group": "Abs",
+        "equipment": "Decline Bench Weight",
+        "difficulty": "Intermediate"
+    },
+    
     # Chest exercises
     {
         "name": "Incline Dumbbell Press",
