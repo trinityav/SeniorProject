@@ -42,6 +42,8 @@ def update_profile(
 
     user.age = profile.age
     user.schedule = profile.schedule
+    user.weight = profile.weight
+    user.gender = profile.gender
 
     db.commit()
     db.refresh(user)
