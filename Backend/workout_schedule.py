@@ -52,6 +52,22 @@ schedule = {
             {"exercise": "Bulgarian Split Squats", "sets": 3, "reps": "10"},
             {"exercise": "Single-Leg Glute Bridge", "sets": 3, "reps": "12"},
             {"exercise": "Hanging Leg Raises", "sets": 3, "reps": "12"}
-    ]
+    ],
+        "Advanced": {
+        "Push Day": [
+            {"exercise": "Weighted Push-ups", "sets": "4", "reps": "6-10"},
+            {"exercise": "Wall Handstand Hold", "sets": "4", "reps": "8-12"},
+            {"exercise": "Weighted Dips", "sets": "3", "reps": "5-8"},
+            {"exercise": "Pseudo Planche Push-ups", "sets": "3", "reps": "8-10"}
+        ],
+        "Pull Day": [
+            {"exercise": "Pull-ups", "sets": "4", "reps": "6-10"},
+            {"exercise": "Hanging Leg Raises", "sets": "4", "reps": "6-10"},
+            {"exercise": "Deadlifts", "sets": "3", "reps": "5-8"},
+            {"exercise": "Barbell Squats", "sets": "3", "reps": "5-8"}
+        ],
+
     }
+    }
+
 }
