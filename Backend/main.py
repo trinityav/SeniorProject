@@ -124,3 +124,15 @@ def get_progress(user_id: int, db: Session = Depends(get_db)):
     # Implementation for calculating and returning progress
     return {"progress": "Progress data here"}
 
+# Delete Account
+@app.delete("/delete_account/{user_id}")
+def delete_account(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        return {"error": "User not found"}
+
+    db.delete(user)
+    db.commit()
+
+    return {"message": "Account deleted"}
+
