@@ -31,12 +31,6 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str
 
-# Workout data models
-class WorkoutData(BaseModel):
-    name: str
-    targeted_muscle_group: str
-    equipment: str
-    difficulty: str
 
 ## Workout plan models
 class WorkoutRoutine(BaseModel):
@@ -50,9 +44,12 @@ class WorkoutPlan(BaseModel):
     
 class Exercise(BaseModel):
     exercise_name: str
+    targeted_muscle_group: str
+    equipment: str
+    difficulty: str
     sets: int
     reps: int
-
+    
 ## Workout schedule models  
 class WorkoutDay(BaseModel):
     day: str
