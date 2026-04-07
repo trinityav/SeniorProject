@@ -59,7 +59,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:background="@drawable/bg_stat_pill"
-                padding="16dp"
+                android:padding="16dp"
                 android:gravity="center_vertical">
 
                 <ImageView
@@ -67,7 +67,7 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:src="@android:drawable/ic_menu_myplaces"
-                    android:tint="#0078AE"
+                    app:tint="#0078AE"
                     android:contentDescription="Profile Icon" />
 
                 <LinearLayout
@@ -125,7 +125,6 @@
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp">
 
-                <!-- Account section -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -255,7 +254,6 @@
 
                 </LinearLayout>
 
-                <!-- Preferences section -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -338,7 +336,6 @@
 
                 </LinearLayout>
 
-                <!-- About section -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -382,6 +379,49 @@
                         android:text="1.0.0"
                         android:textSize="13sp"
                         android:textColor="#AAAAAA" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider_color"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginEnd="18dp"
+                    android:layout_marginTop="8dp" />
+
+                <LinearLayout
+                    android:id="@+id/settingDeleteAccount"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="18dp"
+                    android:background="?attr/selectableItemBackground">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🗑️"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Delete Account"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#D32F2F"
+                        android:layout_marginStart="14dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="›"
+                        android:textSize="20sp"
+                        android:textColor="#D32F2F" />
 
                 </LinearLayout>
 
