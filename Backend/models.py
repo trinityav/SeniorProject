@@ -10,6 +10,11 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     age = Column(Integer)
     schedule = Column(String)
+    height = Column(float)
+    weight = Column(Integer)
+    fitness_level = Column(String)
+    gender = Column(String)
+    fitness_goals = Column(String)
     
 class Exercise(Base):
     __tablename__ = "exercises"
