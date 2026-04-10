@@ -1,42 +1,43 @@
-import chromadb
-from workoutdata import workouts
+from __future__ import annotations
+
+from typing import Dict, List
+
+from Backend.workout_data import workouts
 
 
-client = chromadb.Client()
+_SEARCH_INDEX: List[Dict] = []
 
 
-collection = client.create_collection("fitness")
+def workout_to_text(item: Dict) -> str:
+    target = item.get("targeted_muscle_group") or item.get("targeted muscle group") or ""
+    return f"{item['name']} targets {target}. Equipment: {item.get('equipment', 'Unknown')}. Difficulty: {item.get('difficulty', 'Unknown')}."
 
 
-def workout_to_text(w):
-    return f"{w['name']} targets {w['targeted muscle group']} using {w['equipment']} and is {w['difficulty']} level."
+def load_workouts() -> None:
+    global _SEARCH_INDEX
+    if _SEARCH_INDEX:
+        return
+    _SEARCH_INDEX = []
+    for item in workouts:
+        _SEARCH_INDEX.append(
+            {
+                "text": workout_to_text(item),
+                "raw": item,
+            }
+        )
 
 
-def load_workouts():
-    documents = []
-    ids = []
+def _score(query: str, text: str) -> int:
+    score = 0
+    query_words = {word for word in query.lower().split() if word}
+    text_lower = text.lower()
+    for word in query_words:
+        if word in text_lower:
+            score += 1
+    return score
 
-    for i, w in enumerate(workouts):
-        documents.append(workout_to_text(w))
-        ids.append(str(i))
 
-    collection.add(
-        documents=documents,
-        ids=ids
-    )
-def search_workouts(query):
-    results = collection.query(
-        query_texts=[query],
-        n_results=3
-    )
-    return results["documents"][0]
-
-if __name__ == "__main__":
+def search_workouts(query: str, n_results: int = 5) -> List[str]:
     load_workouts()
-
-    query = "back exercises"
-    results = search_workouts(query)
-
-    print("Search Results:")
-    for r in results:
-        print("-", r)
+    scored = sorted(_SEARCH_INDEX, key=lambda item: _score(query, item["text"]), reverse=True)
+    return [item["text"] for item in scored[:n_results]]

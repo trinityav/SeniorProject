@@ -1,62 +1,52 @@
+from __future__ import annotations
+
 import os
-from openai import OpenAI
+from typing import Optional
+
 from dotenv import load_dotenv
-from vector_store import search_workouts
-from vector_store import load_workouts
+from openai import OpenAI
+
+from Backend.safety import should_refuse, validate_question
+from Backend.vector_store import load_workouts, search_workouts
+
 load_workouts()
-
-
 load_dotenv()
-
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 SYSTEM_PROMPT = """
 You are a strict fitness-only assistant.
-
 Rules:
-- ONLY answer fitness-related questions
-- If the question is not fitness-related, say: "I can only answer fitness questions."
-- If unsure, say: "I am not sure."
-- Do NOT provide medical advice
-- Always end with: General fitness info only
-"""
+1. Only answer fitness and workout questions.
+2. Do not give medical advice or diagnoses.
+3. Keep answers short and practical.
+4. Use the provided workout context when possible.
+5. End with: General fitness info only.
+""".strip()
 
-def answer_fitness_question(question: str) -> str:
+
+def answer_fitness_question(question: str, user_profile: Optional[str] = None) -> str:
+    validation_error = validate_question(question)
+    if validation_error:
+        return validation_error
+
+    refusal = should_refuse(question)
+    if refusal:
+        return refusal
+
+    context = "\n".join(search_workouts(question, n_results=5))
+    profile_text = user_profile or "No user profile provided."
+
     try:
-        
-        context = search_workouts(question)
-        formatted_context = "\n".join(context)
         response = client.responses.create(
             model="gpt-4o-mini",
             input=[
                 {"role": "system", "content": SYSTEM_PROMPT},
-
-                {"role": "system", "content": f"Relevant workout data:\n{formatted_context}"},
-
-                {"role": "user", "content": question}
-            ]
+                {"role": "system", "content": f"User profile: {profile_text}"},
+                {"role": "system", "content": f"Workout context:\n{context}"},
+                {"role": "user", "content": question},
+            ],
         )
-
         return response.output_text.strip()
-
-    except Exception as e:
-        return f"Error: {str(e)}"
-
-
-def run_chatbot():
-    print("Fitness Chatbot (type 'exit' to quit)\n")
-
-    while True:
-        user_input = input("You: ")
-
-        if user_input.lower() in ["exit", "quit"]:
-            print("Goodbye!")
-            break
-
-        answer = answer_fitness_question(user_input)
-        print(f"Bot: {answer}\n")
-
-
-if __name__ == "__main__":
-    run_chatbot()
+    except Exception as exc:
+        return f"Chatbot error: {exc}"

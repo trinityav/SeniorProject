@@ -1,9 +1,9 @@
 fastapi
-uvicorn
+uvicorn[standard]
 sqlalchemy
 passlib[bcrypt]
 python-jose
-uvicorn[standard]
 bcrypt<4.1
 pydantic
-
+openai
+python-dotenv
