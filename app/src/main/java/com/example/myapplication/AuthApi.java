@@ -36,13 +36,13 @@ public class AuthApi {
         Call<MessageResponse> updateProfile(@Body ProfileUpdateRequest request);
 
         @GET("availability")
-        Call<List<AvailabilityItem>> getAvailability();
+        Call<List<AvailabilityItemResponse>> getAvailability();
 
         @POST("availability")
-        Call<MessageResponse> saveAvailability(@Body List<AvailabilityItem> request);
+        Call<List<AvailabilityItemResponse>> saveAvailability(@Body List<AvailabilityItem> request);
 
         @POST("workout-plan/generate")
-        Call<MessageResponse> generateWorkoutPlan();
+        Call<GeneratedWorkoutPlanResponse> generateWorkoutPlan(@Body GeneratePlanRequest request);
 
         @GET("workout-plan/me")
         Call<WorkoutPlanResponse> getWorkoutPlan();
@@ -258,35 +258,145 @@ public class AuthApi {
         }
     }
 
-    public static class WorkoutPlanResponse {
-        private List<WorkoutPlanDay> plan;
+    public static class AvailabilityItemResponse {
+        private int id;
+        private String day;
 
-        public List<WorkoutPlanDay> getPlan() {
+        @SerializedName("start_time")
+        private String startTime;
+
+        @SerializedName("end_time")
+        private String endTime;
+
+        public int getId() {
+            return id;
+        }
+
+        public String getDay() {
+            return day;
+        }
+
+        public String getStartTime() {
+            return startTime;
+        }
+
+        public String getEndTime() {
+            return endTime;
+        }
+    }
+
+    public static class GeneratePlanRequest {
+        @SerializedName("override_goal")
+        private final String overrideGoal;
+
+        public GeneratePlanRequest(String overrideGoal) {
+            this.overrideGoal = overrideGoal;
+        }
+    }
+
+    public static class GeneratedWorkoutPlanResponse {
+        @SerializedName("user_id")
+        private int userId;
+
+        @SerializedName("fitness_goal")
+        private String fitnessGoal;
+
+        @SerializedName("fitness_level")
+        private String fitnessLevel;
+
+        private List<WorkoutPlanItem> plan;
+
+        public int getUserId() {
+            return userId;
+        }
+
+        public String getFitnessGoal() {
+            return fitnessGoal;
+        }
+
+        public String getFitnessLevel() {
+            return fitnessLevel;
+        }
+
+        public List<WorkoutPlanItem> getPlan() {
             return plan;
         }
     }
 
-    public static class WorkoutPlanDay {
+    public static class WorkoutPlanResponse {
+        private int id;
+
+        @SerializedName("user_id")
+        private int userId;
+
+        @SerializedName("fitness_goal")
+        private String fitnessGoal;
+
+        @SerializedName("fitness_level")
+        private String fitnessLevel;
+
+        private String status;
+        private List<WorkoutPlanItem> items;
+
+        public int getId() {
+            return id;
+        }
+
+        public int getUserId() {
+            return userId;
+        }
+
+        public String getFitnessGoal() {
+            return fitnessGoal;
+        }
+
+        public String getFitnessLevel() {
+            return fitnessLevel;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public List<WorkoutPlanItem> getItems() {
+            return items;
+        }
+    }
+
+    public static class WorkoutPlanItem {
         private String day;
-        private String workout;
-        private String intensity;
-        private Integer duration;
+
+        @SerializedName("start_time")
+        private String startTime;
+
+        @SerializedName("end_time")
+        private String endTime;
+
+        private String focus;
+
+        @SerializedName("estimated_total_minutes")
+        private Integer estimatedTotalMinutes;
+
         private List<ExerciseItem> exercises;
 
         public String getDay() {
             return day;
         }
 
-        public String getWorkout() {
-            return workout;
+        public String getStartTime() {
+            return startTime;
         }
 
-        public String getIntensity() {
-            return intensity;
+        public String getEndTime() {
+            return endTime;
         }
 
-        public Integer getDuration() {
-            return duration;
+        public String getFocus() {
+            return focus;
+        }
+
+        public Integer getEstimatedTotalMinutes() {
+            return estimatedTotalMinutes;
         }
 
         public List<ExerciseItem> getExercises() {
@@ -332,10 +442,10 @@ public class AuthApi {
     }
 
     public static class ProgressResponse {
-        @SerializedName(value = "total_workouts", alternate = {"totalWorkouts"})
+        @SerializedName(value = "total_workouts", alternate = {"totalWorkouts", "total_logged_workouts"})
         private Integer totalWorkouts;
 
-        @SerializedName(value = "last_workout", alternate = {"lastWorkout"})
+        @SerializedName(value = "last_workout", alternate = {"lastWorkout", "most_recent_workout"})
         private String lastWorkout;
 
         @SerializedName(value = "current_streak", alternate = {"currentStreak"})

@@ -71,7 +71,18 @@ public class HomeScreen extends BaseActivity {
         }
 
         CardView aiChatCard = findViewById(R.id.aiChatCard);
+        if (aiChatCard != null) {
+            aiChatCard.setOnClickListener(v -> {
+                // add chatbot screen later
+            });
+        }
+
         CardView upcomingWorkoutCard = findViewById(R.id.upcomingWorkoutCard);
+        if (upcomingWorkoutCard != null) {
+            upcomingWorkoutCard.setOnClickListener(v ->
+                    startActivity(new Intent(HomeScreen.this, WorkoutsActivity.class))
+            );
+        }
     }
 
     private void loadProgress(TextView tvTotalWorkouts) {
@@ -86,6 +97,9 @@ public class HomeScreen extends BaseActivity {
 
             @Override
             public void onFailure(Call<AuthApi.ProgressResponse> call, Throwable t) {
+                if (tvTotalWorkouts != null) {
+                    tvTotalWorkouts.setText("0");
+                }
             }
         });
     }
@@ -94,15 +108,21 @@ public class HomeScreen extends BaseActivity {
         authService.getWorkoutPlan().enqueue(new Callback<AuthApi.WorkoutPlanResponse>() {
             @Override
             public void onResponse(Call<AuthApi.WorkoutPlanResponse> call, Response<AuthApi.WorkoutPlanResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<AuthApi.WorkoutPlanDay> plan = response.body().getPlan();
-                    if (plan != null && !plan.isEmpty()) {
-                        AuthApi.WorkoutPlanDay first = plan.get(0);
-                        if (tvUpcomingDate != null) {
+                if (response.isSuccessful() && response.body() != null && response.body().getItems() != null) {
+                    List<AuthApi.WorkoutPlanItem> items = response.body().getItems();
+
+                    if (!items.isEmpty()) {
+                        AuthApi.WorkoutPlanItem first = items.get(0);
+
+                        if (tvUpcomingDate != null && first.getDay() != null) {
                             tvUpcomingDate.setText(capitalize(first.getDay()));
                         }
+
                         if (tvUpcomingWorkoutName != null) {
-                            tvUpcomingWorkoutName.setText(first.getWorkout());
+                            String workoutName = first.getFocus() != null && !first.getFocus().isEmpty()
+                                    ? first.getFocus()
+                                    : "Workout";
+                            tvUpcomingWorkoutName.setText(workoutName);
                         }
                         return;
                     }
@@ -125,6 +145,7 @@ public class HomeScreen extends BaseActivity {
             String date = new SimpleDateFormat("EEEE, MMM d yyyy", Locale.getDefault()).format(next.getTime());
             tvUpcomingDate.setText(date);
         }
+
         if (tvUpcomingWorkoutName != null) {
             tvUpcomingWorkoutName.setText("No workout plan yet");
         }

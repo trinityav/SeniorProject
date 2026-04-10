@@ -98,22 +98,12 @@ class GeneratedWorkoutPlanResponse(BaseModel):
 
 
 class WorkoutPlanItemResponse(BaseModel):
-    id: int
     day: str
     start_time: Optional[str] = None
     end_time: Optional[str] = None
     focus: str
-    exercise_name: str
-    targeted_muscle_group: Optional[str] = None
-    equipment: Optional[str] = None
-    difficulty: Optional[str] = None
-    sets: str
-    reps: str
-    estimated_minutes: int
-    sort_order: int
-
-    class Config:
-        from_attributes = True
+    estimated_total_minutes: int
+    exercises: List[ExerciseInfo]
 
 
 class WorkoutPlanResponse(BaseModel):
@@ -155,6 +145,7 @@ class ProgressResponse(BaseModel):
     total_minutes: int
     average_minutes: float
     most_recent_workout: Optional[str] = None
+    current_streak: int = 0
 
 
 class FeedbackCreate(BaseModel):

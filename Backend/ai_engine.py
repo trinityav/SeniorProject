@@ -14,21 +14,32 @@ DAY_ORDER = [
     "sunday",
 ]
 
-LEVEL_ORDER = {
+LEVEL_RANK = {
     "beginner": 1,
-    "beginner-intermediate": 2,
-    "intermediate": 3,
-    "intermediate-advanced": 4,
-    "advanced": 5,
+    "intermediate": 2,
+    "advanced": 3,
 }
 
-FOCUS_KEYWORDS = {
-    "full_body": ["full body", "core", "quads", "glutes", "back", "chest", "shoulders"],
-    "upper": ["chest", "back", "biceps", "triceps", "shoulders"],
+FOCUS_PATTERNS = {
+    "full_body_a": ["chest", "back", "quads", "core", "glutes"],
+    "full_body_b": ["shoulders", "back", "quads", "biceps", "triceps"],
+    "full_body_c": ["chest", "glutes", "hamstring", "core", "shoulders"],
+    "upper": ["chest", "back", "shoulders", "biceps", "triceps"],
     "lower": ["quads", "glute", "hamstring", "calves", "posterior chain"],
-    "push": ["chest", "triceps", "shoulders"],
-    "pull": ["back", "biceps", "forearms", "lower back"],
+    "push": ["chest", "shoulders", "triceps"],
+    "pull": ["back", "biceps", "lower back"],
     "legs": ["quads", "glute", "hamstring", "calves", "posterior chain"],
+}
+
+FOCUS_DISPLAY = {
+    "full_body_a": "Full Body A",
+    "full_body_b": "Full Body B",
+    "full_body_c": "Full Body C",
+    "upper": "Upper Body",
+    "lower": "Lower Body",
+    "push": "Push Day",
+    "pull": "Pull Day",
+    "legs": "Leg Day",
 }
 
 
@@ -36,64 +47,98 @@ def normalize_level(level: Optional[str]) -> str:
     if not level:
         return "beginner"
     value = level.strip().lower()
-    if value in {"intermediate", "advanced", "beginner"}:
-        return value
-    if "advanced" in value and "intermediate" in value:
-        return "intermediate"
+    if "advanced" in value:
+        return "advanced"
     if "intermediate" in value:
         return "intermediate"
     return "beginner"
 
 
-def minutes_between(start_time: str, end_time: str) -> int:
-    start_hour, start_min = [int(x) for x in start_time.split(":")]
-    end_hour, end_min = [int(x) for x in end_time.split(":")]
-    return max(((end_hour * 60) + end_min) - ((start_hour * 60) + start_min), 20)
+def normalize_difficulty_label(label: Optional[str]) -> str:
+    if not label:
+        return "beginner"
+    value = label.strip().lower()
+    if "advanced" in value and "intermediate" in value:
+        return "advanced"
+    if "advanced" in value:
+        return "advanced"
+    if "intermediate" in value:
+        return "intermediate"
+    return "beginner"
+
+
+def can_use_for_level(exercise_level: str, user_level: str) -> bool:
+    exercise_rank = LEVEL_RANK[normalize_difficulty_label(exercise_level)]
+    user_rank = LEVEL_RANK[user_level]
+    return exercise_rank <= user_rank
 
 
 def sort_slots(slots: List[Dict]) -> List[Dict]:
     def key(slot: Dict):
-        day_index = DAY_ORDER.index(slot["day"].lower()) if slot["day"].lower() in DAY_ORDER else 99
-        return day_index, slot["start_time"]
+        day = slot["day"].lower()
+        return DAY_ORDER.index(day) if day in DAY_ORDER else 99, slot["start_time"]
 
     return sorted(slots, key=key)
 
 
+def minutes_between(start_time: str, end_time: str) -> int:
+    start_hour, start_min = [int(x) for x in start_time.split(":")]
+    end_hour, end_min = [int(x) for x in end_time.split(":")]
+    duration = ((end_hour * 60) + end_min) - ((start_hour * 60) + start_min)
+    return max(duration, 10)
+
+
 def choose_split(slot_count: int, level: str) -> List[str]:
-    if slot_count <= 2:
-        return ["full_body"] * slot_count
+    if slot_count == 1:
+        return ["full_body_a"]
+
+    if slot_count == 2:
+        if level == "beginner":
+            return ["full_body_a", "full_body_b"]
+        return ["upper", "lower"]
+
     if slot_count == 3:
-        return ["full_body", "full_body", "full_body"]
+        if level == "beginner":
+            return ["full_body_a", "full_body_b", "full_body_c"]
+        return ["push", "pull", "legs"]
+
     if slot_count == 4:
         return ["upper", "lower", "upper", "lower"]
+
     if level == "advanced":
-        return ["push", "pull", "legs", "push", "pull", "legs"][:slot_count]
+        return ["push", "pull", "legs", "upper", "lower", "full_body_a"][:slot_count]
+
     return ["push", "pull", "legs", "upper", "lower"][:slot_count]
 
 
-def allowed_level_values(level: str) -> List[str]:
-    max_rank = LEVEL_ORDER[level]
-    return [name for name, rank in LEVEL_ORDER.items() if rank <= max_rank]
-
-
-def matches_focus(target_group: str, focus: str) -> bool:
-    target_lower = target_group.lower()
-    for keyword in FOCUS_KEYWORDS[focus]:
-        if keyword in target_lower:
+def target_matches_focus(target_group: str, focus_key: str) -> bool:
+    target = target_group.lower()
+    for keyword in FOCUS_PATTERNS[focus_key]:
+        if keyword in target:
             return True
     return False
 
 
-def build_exercise_pool(level: str, focus: str) -> List[Dict]:
-    allowed = set(allowed_level_values(level))
-    pool: List[Dict] = []
+def get_target_group(item: Dict) -> str:
+    return (
+        item.get("targeted_muscle_group")
+        or item.get("targeted muscle group")
+        or item.get("targetedmuscle_group")
+        or ""
+    )
+
+
+def build_pool(user_level: str, focus_key: str) -> List[Dict]:
+    pool = []
     for item in workouts:
-        difficulty = item.get("difficulty", "Beginner").strip().lower()
-        target = item.get("targeted_muscle_group") or item.get("targeted muscle group") or ""
-        if difficulty not in allowed:
+        target = get_target_group(item)
+        if not target:
             continue
-        if not matches_focus(target, focus):
+        if not can_use_for_level(item.get("difficulty"), user_level):
             continue
+        if not target_matches_focus(target, focus_key):
+            continue
+
         pool.append(
             {
                 "name": item["name"],
@@ -105,48 +150,60 @@ def build_exercise_pool(level: str, focus: str) -> List[Dict]:
     return pool
 
 
-def reps_for_level(level: str, focus: str) -> tuple[str, str]:
-    if focus in {"full_body", "legs", "lower"}:
-        if level == "advanced":
-            return "4", "6-10"
-        if level == "intermediate":
-            return "3-4", "8-12"
+def exercise_count_for_duration(duration_minutes: int) -> int:
+    if duration_minutes <= 15:
+        return 3
+    if duration_minutes <= 30:
+        return 5
+    if duration_minutes <= 45:
+        return 6
+    if duration_minutes <= 60:
+        return 7
+    return 8
+
+
+def sets_reps_for_level(level: str, focus_key: str) -> tuple[str, str]:
+    if level == "beginner":
+        if focus_key in {"legs", "lower"}:
+            return "2-3", "10-12"
         return "2-3", "10-15"
-    if level == "advanced":
-        return "4", "6-10"
+
     if level == "intermediate":
-        return "3-4", "8-12"
-    return "2-3", "10-15"
+        if focus_key in {"push", "pull", "legs", "upper", "lower"}:
+            return "3-4", "8-12"
+        return "3", "10-12"
+
+    if focus_key in {"push", "pull", "legs", "upper", "lower"}:
+        return "4", "6-10"
+    return "3-4", "8-12"
 
 
-def exercise_count_for_duration(duration: int, level: str) -> int:
-    base = 3
-    if duration >= 45:
-        base = 4
-    if duration >= 60:
-        base = 5
-    if level == "advanced" and duration >= 60:
-        base = 6
-    return base
+def estimate_intensity(level: str, duration_minutes: int) -> str:
+    if level == "advanced":
+        return "High"
+    if level == "intermediate":
+        return "Moderate" if duration_minutes < 45 else "High"
+    return "Light" if duration_minutes < 30 else "Moderate"
 
 
-def estimate_intensity(age: Optional[int], level: str, weight: Optional[int], height_feet: Optional[int], height_inches: Optional[int]) -> str:
-    score = {"beginner": 1, "intermediate": 2, "advanced": 3}[level]
-    if age and age < 30:
-        score += 1
-    if age and age >= 45:
-        score -= 1
-    if weight and height_feet is not None and height_inches is not None:
-        total_inches = (height_feet * 12) + height_inches
-        if total_inches > 0:
-            bmi_like = (weight / (total_inches * total_inches)) * 703
-            if bmi_like >= 30:
-                score -= 1
-    if score <= 1:
-        return "Light"
-    if score == 2:
-        return "Moderate"
-    return "High"
+def pick_exercises(pool: List[Dict], count: int, used_names: set[str]) -> List[Dict]:
+    chosen = []
+
+    for item in pool:
+        if item["name"] in used_names:
+            continue
+        chosen.append(item)
+        used_names.add(item["name"])
+        if len(chosen) == count:
+            return chosen
+
+    for item in pool:
+        if item["name"] not in [x["name"] for x in chosen]:
+            chosen.append(item)
+            if len(chosen) == count:
+                return chosen
+
+    return chosen
 
 
 def generate_workout_plan_for_user(user, availability_slots: List[Dict], goal_override: Optional[str] = None) -> Dict:
@@ -157,42 +214,30 @@ def generate_workout_plan_for_user(user, availability_slots: List[Dict], goal_ov
     level = normalize_level(user.fitness_level)
     goal = goal_override or user.fitness_goal or "general_fitness"
     split = choose_split(len(slots), level)
-    intensity = estimate_intensity(user.age, level, user.weight, user.height_feet, user.height_inches)
 
     plan_days: List[Dict] = []
-    used_names: List[str] = []
+    used_names: set[str] = set()
 
     for index, slot in enumerate(slots):
-        focus = split[index % len(split)]
-        duration = minutes_between(slot["start_time"], slot["end_time"])
-        pool = build_exercise_pool(level, focus)
+        focus_key = split[index % len(split)]
+        duration_minutes = minutes_between(slot["start_time"], slot["end_time"])
+
+        pool = build_pool(level, focus_key)
         if len(pool) < 3:
-            pool = build_exercise_pool(level, "full_body")
+            pool = build_pool(level, "full_body_a")
 
-        count = min(exercise_count_for_duration(duration, level), len(pool))
-        if count == 0:
-            raise ValueError(f"No workout data found for focus: {focus}")
+        if not pool:
+            raise ValueError(f"No workout data found for {focus_key}")
 
-        chosen: List[Dict] = []
-        for item in pool:
-            if item["name"] in used_names:
-                continue
-            chosen.append(item)
-            used_names.append(item["name"])
-            if len(chosen) == count:
-                break
+        exercise_count = min(exercise_count_for_duration(duration_minutes), len(pool))
+        chosen = pick_exercises(pool, exercise_count, used_names)
 
-        if len(chosen) < count:
-            for item in pool:
-                if item["name"] not in [x["name"] for x in chosen]:
-                    chosen.append(item)
-                if len(chosen) == count:
-                    break
+        sets, reps = sets_reps_for_level(level, focus_key)
+        per_exercise_minutes = max(5, round(duration_minutes / max(len(chosen), 1)))
 
-        sets, reps = reps_for_level(level, focus)
-        per_exercise_minutes = max(int(duration / max(len(chosen), 1)), 8)
         exercises = []
         total_minutes = 0
+
         for exercise in chosen:
             exercises.append(
                 {
@@ -212,9 +257,9 @@ def generate_workout_plan_for_user(user, availability_slots: List[Dict], goal_ov
                 "day": slot["day"],
                 "start_time": slot["start_time"],
                 "end_time": slot["end_time"],
-                "focus": focus.replace("_", " ").title(),
+                "focus": FOCUS_DISPLAY[focus_key],
                 "estimated_total_minutes": total_minutes,
-                "intensity": intensity,
+                "intensity": estimate_intensity(level, duration_minutes),
                 "goal": goal,
                 "exercises": exercises,
             }

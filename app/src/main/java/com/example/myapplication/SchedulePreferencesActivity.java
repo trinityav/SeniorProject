@@ -21,9 +21,18 @@ import retrofit2.Response;
 
 public class SchedulePreferencesActivity extends AppCompatActivity {
 
-    private CheckBox cbMonday, cbTuesday, cbWednesday, cbThursday, cbFriday, cbSaturday, cbSunday;
-    private EditText etStartTime, etEndTime;
+    private CheckBox cbMonday;
+    private CheckBox cbTuesday;
+    private CheckBox cbWednesday;
+    private CheckBox cbThursday;
+    private CheckBox cbFriday;
+    private CheckBox cbSaturday;
+    private CheckBox cbSunday;
+
+    private EditText etStartTime;
+    private EditText etEndTime;
     private MaterialButton btnSaveSchedule;
+
     private AuthApi.AuthService authService;
 
     @Override
@@ -40,6 +49,7 @@ public class SchedulePreferencesActivity extends AppCompatActivity {
         cbFriday = findViewById(R.id.cbFriday);
         cbSaturday = findViewById(R.id.cbSaturday);
         cbSunday = findViewById(R.id.cbSunday);
+
         etStartTime = findViewById(R.id.etStartTime);
         etEndTime = findViewById(R.id.etEndTime);
         btnSaveSchedule = findViewById(R.id.btnSaveSchedule);
@@ -53,7 +63,10 @@ public class SchedulePreferencesActivity extends AppCompatActivity {
     private void showTimePicker(EditText target) {
         TimePickerDialog dialog = new TimePickerDialog(
                 this,
-                (view, hourOfDay, minute) -> target.setText(String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute)),
+                (view, hourOfDay, minute) -> {
+                    String formattedTime = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
+                    target.setText(formattedTime);
+                },
                 18,
                 0,
                 true
@@ -62,8 +75,6 @@ public class SchedulePreferencesActivity extends AppCompatActivity {
     }
 
     private void saveScheduleAndGeneratePlan() {
-        List<AuthApi.AvailabilityItem> availability = new ArrayList<>();
-
         String startTime = etStartTime.getText().toString().trim();
         String endTime = etEndTime.getText().toString().trim();
 
@@ -71,6 +82,8 @@ public class SchedulePreferencesActivity extends AppCompatActivity {
             Toast.makeText(this, "Please choose start and end time", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        List<AuthApi.AvailabilityItem> availability = new ArrayList<>();
 
         addIfChecked(availability, cbMonday, "monday", startTime, endTime);
         addIfChecked(availability, cbTuesday, "tuesday", startTime, endTime);
@@ -87,9 +100,9 @@ public class SchedulePreferencesActivity extends AppCompatActivity {
 
         btnSaveSchedule.setEnabled(false);
 
-        authService.saveAvailability(availability).enqueue(new Callback<AuthApi.MessageResponse>() {
+        authService.saveAvailability(availability).enqueue(new Callback<List<AuthApi.AvailabilityItemResponse>>() {
             @Override
-            public void onResponse(Call<AuthApi.MessageResponse> call, Response<AuthApi.MessageResponse> response) {
+            public void onResponse(Call<List<AuthApi.AvailabilityItemResponse>> call, Response<List<AuthApi.AvailabilityItemResponse>> response) {
                 if (response.isSuccessful()) {
                     generateWorkoutPlan();
                 } else {
@@ -99,21 +112,24 @@ public class SchedulePreferencesActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<AuthApi.MessageResponse> call, Throwable t) {
+            public void onFailure(Call<List<AuthApi.AvailabilityItemResponse>> call, Throwable t) {
                 btnSaveSchedule.setEnabled(true);
-                Toast.makeText(SchedulePreferencesActivity.this, "Server error while saving schedule", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SchedulePreferencesActivity.this, "Schedule save failed: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
 
     private void generateWorkoutPlan() {
-        authService.generateWorkoutPlan().enqueue(new Callback<AuthApi.MessageResponse>() {
+        AuthApi.GeneratePlanRequest request = new AuthApi.GeneratePlanRequest(null);
+
+        authService.generateWorkoutPlan(request).enqueue(new Callback<AuthApi.GeneratedWorkoutPlanResponse>() {
             @Override
-            public void onResponse(Call<AuthApi.MessageResponse> call, Response<AuthApi.MessageResponse> response) {
+            public void onResponse(Call<AuthApi.GeneratedWorkoutPlanResponse> call, Response<AuthApi.GeneratedWorkoutPlanResponse> response) {
                 btnSaveSchedule.setEnabled(true);
 
                 if (response.isSuccessful()) {
                     Toast.makeText(SchedulePreferencesActivity.this, "Workout plan generated", Toast.LENGTH_SHORT).show();
+
                     Intent intent = new Intent(SchedulePreferencesActivity.this, WorkoutsActivity.class);
                     startActivity(intent);
                     finish();
@@ -123,15 +139,15 @@ public class SchedulePreferencesActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<AuthApi.MessageResponse> call, Throwable t) {
+            public void onFailure(Call<AuthApi.GeneratedWorkoutPlanResponse> call, Throwable t) {
                 btnSaveSchedule.setEnabled(true);
-                Toast.makeText(SchedulePreferencesActivity.this, "Server error while generating plan", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SchedulePreferencesActivity.this, "Plan generation failed: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
 
     private void addIfChecked(List<AuthApi.AvailabilityItem> list, CheckBox checkBox, String day, String startTime, String endTime) {
-        if (checkBox.isChecked()) {
+        if (checkBox != null && checkBox.isChecked()) {
             list.add(new AuthApi.AvailabilityItem(day, startTime, endTime));
         }
     }

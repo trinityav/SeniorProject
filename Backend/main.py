@@ -7,7 +7,7 @@ from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
 from Backend.ai_engine import generate_workout_plan_for_user
-#from Backend.chatbot import answer_fitness_question
+from Backend.chatbot import answer_fitness_question
 from Backend.database import engine, get_db
 from Backend.auth.dependencies import get_current_user
 import Backend.models as models
@@ -124,9 +124,9 @@ def generate_plan(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
-    db.query(models.WorkoutPlan).filter(models.WorkoutPlan.user_id == current_user.id).update(
-        {"status": "archived"}
-    )
+    db.query(models.WorkoutPlan).filter(
+        models.WorkoutPlan.user_id == current_user.id
+    ).update({"status": "archived"})
 
     plan_row = models.WorkoutPlan(
         user_id=current_user.id,
@@ -161,7 +161,7 @@ def generate_plan(
     return generated
 
 
-@app.get("/workout-plan/me")
+@app.get("/workout-plan/me", response_model=schemas.WorkoutPlanResponse)
 def get_latest_plan(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
@@ -178,12 +178,48 @@ def get_latest_plan(
     if not plan:
         raise HTTPException(status_code=404, detail="No active workout plan found")
 
-    items = (
+    rows = (
         db.query(models.WorkoutPlanItem)
         .filter(models.WorkoutPlanItem.plan_id == plan.id)
         .order_by(models.WorkoutPlanItem.sort_order.asc())
         .all()
     )
+
+    grouped_items = []
+    current_group = None
+
+    for row in rows:
+        same_group = (
+            current_group is not None
+            and current_group["day"] == row.day
+            and current_group["start_time"] == row.start_time
+            and current_group["end_time"] == row.end_time
+            and current_group["focus"] == row.focus
+        )
+
+        if not same_group:
+            current_group = {
+                "day": row.day,
+                "start_time": row.start_time,
+                "end_time": row.end_time,
+                "focus": row.focus,
+                "estimated_total_minutes": 0,
+                "exercises": [],
+            }
+            grouped_items.append(current_group)
+
+        current_group["exercises"].append(
+            {
+                "exercise_name": row.exercise_name,
+                "targeted_muscle_group": row.targeted_muscle_group,
+                "equipment": row.equipment,
+                "difficulty": row.difficulty,
+                "sets": row.sets,
+                "reps": row.reps,
+                "estimated_minutes": row.estimated_minutes,
+            }
+        )
+        current_group["estimated_total_minutes"] += row.estimated_minutes
 
     return {
         "id": plan.id,
@@ -192,7 +228,7 @@ def get_latest_plan(
         "fitness_goal": plan.fitness_goal,
         "fitness_level": plan.fitness_level,
         "status": plan.status,
-        "items": items,
+        "items": grouped_items,
     }
 
 
@@ -231,6 +267,28 @@ def get_workout_logs(
     )
 
 
+def compute_current_streak(logs: List[models.WorkoutLog]) -> int:
+    if not logs:
+        return 0
+
+    unique_dates = sorted({log.performed_at[:10] for log in logs if log.performed_at}, reverse=True)
+    if not unique_dates:
+        return 0
+
+    streak = 1
+    previous = datetime.strptime(unique_dates[0], "%Y-%m-%d").date()
+
+    for date_str in unique_dates[1:]:
+        current = datetime.strptime(date_str, "%Y-%m-%d").date()
+        if (previous - current).days == 1:
+            streak += 1
+            previous = current
+        else:
+            break
+
+    return streak
+
+
 @app.get("/progress/me", response_model=schemas.ProgressResponse)
 def get_progress(
     db: Session = Depends(get_db),
@@ -239,17 +297,22 @@ def get_progress(
     logs = (
         db.query(models.WorkoutLog)
         .filter(models.WorkoutLog.user_id == current_user.id)
+        .order_by(models.WorkoutLog.performed_at.asc())
         .all()
     )
+
     total_logged_workouts = len(logs)
     total_minutes = sum(log.duration_minutes for log in logs)
     average_minutes = round(total_minutes / total_logged_workouts, 2) if total_logged_workouts else 0.0
     most_recent_workout = logs[-1].performed_at if logs else None
+    current_streak = compute_current_streak(logs)
+
     return {
         "total_logged_workouts": total_logged_workouts,
         "total_minutes": total_minutes,
         "average_minutes": average_minutes,
         "most_recent_workout": most_recent_workout,
+        "current_streak": current_streak,
     }
 
 

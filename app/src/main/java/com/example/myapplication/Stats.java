@@ -9,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -42,7 +43,7 @@ public class Stats extends BaseActivity {
 
     private Calendar displayedMonth;
     private final Set<String> workoutDayNames = new HashSet<>();
-    private final Map<String, AuthApi.WorkoutPlanDay> workoutPlanByDay = new HashMap<>();
+    private final Map<String, AuthApi.WorkoutPlanItem> workoutPlanByDay = new HashMap<>();
 
     private AuthApi.AuthService authService;
 
@@ -176,14 +177,14 @@ public class Stats extends BaseActivity {
                 workoutDayNames.clear();
                 workoutPlanByDay.clear();
 
-                if (response.isSuccessful() && response.body() != null && response.body().getPlan() != null) {
-                    List<AuthApi.WorkoutPlanDay> plan = response.body().getPlan();
+                if (response.isSuccessful() && response.body() != null && response.body().getItems() != null) {
+                    List<AuthApi.WorkoutPlanItem> items = response.body().getItems();
 
-                    for (AuthApi.WorkoutPlanDay day : plan) {
-                        if (day.getDay() != null) {
-                            String normalizedDay = day.getDay().trim().toLowerCase();
+                    for (AuthApi.WorkoutPlanItem item : items) {
+                        if (item.getDay() != null) {
+                            String normalizedDay = item.getDay().trim().toLowerCase();
                             workoutDayNames.add(normalizedDay);
-                            workoutPlanByDay.put(normalizedDay, day);
+                            workoutPlanByDay.put(normalizedDay, item);
                         }
                     }
                 }
@@ -227,9 +228,9 @@ public class Stats extends BaseActivity {
             boolean isScheduled = workoutDayNames.contains(dayName);
             boolean isToday = dateStr.equals(todayStr);
 
-            AuthApi.WorkoutPlanDay planDay = workoutPlanByDay.get(dayName);
+            AuthApi.WorkoutPlanItem planItem = workoutPlanByDay.get(dayName);
 
-            calendarGrid.addView(makeDayCell(day, dateStr, dayName, isScheduled, isToday, planDay));
+            calendarGrid.addView(makeDayCell(day, dateStr, dayName, isScheduled, isToday, planItem));
         }
     }
 
@@ -244,7 +245,7 @@ public class Stats extends BaseActivity {
         return tv;
     }
 
-    private View makeDayCell(int day, String dateStr, String dayName, boolean isScheduled, boolean isToday, AuthApi.WorkoutPlanDay planDay) {
+    private View makeDayCell(int day, String dateStr, String dayName, boolean isScheduled, boolean isToday, AuthApi.WorkoutPlanItem planItem) {
         TextView tv = new TextView(this);
         GridLayout.LayoutParams params = new GridLayout.LayoutParams();
         params.width = 0;
@@ -268,33 +269,29 @@ public class Stats extends BaseActivity {
         }
 
         if (isScheduled) {
-            tv.setOnClickListener(v -> showDayDetail(dateStr, dayName, planDay));
+            tv.setOnClickListener(v -> showDayDetail(dateStr, dayName, planItem));
         }
 
         return tv;
     }
 
-    private void showDayDetail(String dateStr, String dayName, AuthApi.WorkoutPlanDay planDay) {
+    private void showDayDetail(String dateStr, String dayName, AuthApi.WorkoutPlanItem planItem) {
         StringBuilder msg = new StringBuilder();
         msg.append("Date: ").append(dateStr).append("\n\n");
         msg.append("Workout day: ").append(capitalize(dayName)).append("\n");
 
-        if (planDay != null) {
-            if (planDay.getWorkout() != null) {
-                msg.append("Workout: ").append(planDay.getWorkout()).append("\n");
+        if (planItem != null) {
+            if (planItem.getFocus() != null) {
+                msg.append("Workout: ").append(planItem.getFocus()).append("\n");
             }
 
-            if (planDay.getDuration() != null) {
-                msg.append("Duration: ").append(planDay.getDuration()).append(" mins\n");
+            if (planItem.getEstimatedTotalMinutes() != null) {
+                msg.append("Duration: ").append(planItem.getEstimatedTotalMinutes()).append(" mins\n");
             }
 
-            if (planDay.getIntensity() != null) {
-                msg.append("Difficulty: ").append(capitalize(planDay.getIntensity())).append("\n");
-            }
-
-            if (planDay.getExercises() != null && !planDay.getExercises().isEmpty()) {
+            if (planItem.getExercises() != null && !planItem.getExercises().isEmpty()) {
                 msg.append("\nExercises:\n");
-                for (AuthApi.ExerciseItem ex : planDay.getExercises()) {
+                for (AuthApi.ExerciseItem ex : planItem.getExercises()) {
                     String line = "• " + ex.getExerciseName();
                     if (ex.getSets() != null && ex.getReps() != null) {
                         line += " , " + ex.getSets() + " sets x " + ex.getReps();
@@ -304,7 +301,7 @@ public class Stats extends BaseActivity {
             }
         }
 
-        new androidx.appcompat.app.AlertDialog.Builder(this)
+        new AlertDialog.Builder(this)
                 .setTitle(capitalize(dayName) + " Workout")
                 .setMessage(msg.toString().trim())
                 .setPositiveButton("Close", null)
