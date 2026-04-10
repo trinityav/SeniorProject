@@ -10,31 +10,34 @@ import androidx.cardview.widget.CardView;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class HomeScreen extends BaseActivity {
 
     private static final String[] GREETINGS = {
-            "Hi Student,\nLets check Your Activity!",
-            "Hi Student,\nYou're crushing it today! 💪",
-            "Hi Student,\nEvery rep counts. Let's go!",
-            "Hi Student,\nChampions train every day!",
-            "Hi Student,\nYour future self will thank you!",
-            "Hi Student,\nNo days off. Let's move! 🔥",
-            "Hi Student,\nConsistency is the key. Let's train!",
-            "Hi Student,\nPain today, strength tomorrow! 💥"
+            "Lets check your activity",
+            "You're doing great today",
+            "Every rep counts",
+            "Keep going",
+            "Consistency matters",
+            "Stay on track"
     };
+
+    private AuthApi.AuthService authService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         EdgeToEdge.enable(this);
+        setActivityLayout(R.layout.activity_home_screen);
 
-        setActivityLayout(R.layout.activity_home_screen); // ← your layout file name
-
-        // Session check
         SessionManager sessionManager = new SessionManager(this);
         if (!sessionManager.isLoggedIn()) {
             Intent intent = new Intent(this, LogIn.class);
@@ -44,33 +47,22 @@ public class HomeScreen extends BaseActivity {
             return;
         }
 
-        // Randomized greeting
+        authService = AuthApi.getService(this);
+
         TextView greetingText = findViewById(R.id.greetingText);
+        String username = sessionManager.getUsername();
         if (greetingText != null) {
-            greetingText.setText(GREETINGS[new Random().nextInt(GREETINGS.length)]);
+            String line = GREETINGS[new Random().nextInt(GREETINGS.length)];
+            greetingText.setText("Hi, " + username + "\n" + line);
         }
 
-        // Upcoming workout date — defaults to tomorrow
-        TextView tvUpcomingDate = findViewById(R.id.tvUpcomingDate);
-        if (tvUpcomingDate != null) {
-            Calendar next = Calendar.getInstance();
-            next.add(Calendar.DAY_OF_YEAR, 1);
-            String date = new SimpleDateFormat("EEEE, MMM d yyyy", Locale.getDefault()).format(next.getTime());
-            tvUpcomingDate.setText(date);
-        }
-
-        TextView tvUpcomingWorkoutName = findViewById(R.id.tvUpcomingWorkoutName);
-        if (tvUpcomingWorkoutName != null) {
-            tvUpcomingWorkoutName.setText("Tap to schedule a workout");
-        }
-
-        // Total workouts — placeholder until Firebase is set up
         TextView tvTotalWorkouts = findViewById(R.id.tvTotalWorkouts);
-        if (tvTotalWorkouts != null) {
-            tvTotalWorkouts.setText("0");
-        }
+        TextView tvUpcomingDate = findViewById(R.id.tvUpcomingDate);
+        TextView tvUpcomingWorkoutName = findViewById(R.id.tvUpcomingWorkoutName);
 
-        // Start Workout button
+        loadProgress(tvTotalWorkouts);
+        loadWorkoutPlanPreview(tvUpcomingDate, tvUpcomingWorkoutName);
+
         Button startWorkoutButton = findViewById(R.id.startWorkoutButton);
         if (startWorkoutButton != null) {
             startWorkoutButton.setOnClickListener(v ->
@@ -78,12 +70,68 @@ public class HomeScreen extends BaseActivity {
             );
         }
 
-        // AI Chat card — skeleton for now
         CardView aiChatCard = findViewById(R.id.aiChatCard);
-        // TODO: startActivity(new Intent(HomeScreen.this, ChatActivity.class));
-
-        // Upcoming workout card — skeleton for now
         CardView upcomingWorkoutCard = findViewById(R.id.upcomingWorkoutCard);
-        // TODO: startActivity(new Intent(HomeScreen.this, StatsActivity.class));
+    }
+
+    private void loadProgress(TextView tvTotalWorkouts) {
+        authService.getProgress().enqueue(new Callback<AuthApi.ProgressResponse>() {
+            @Override
+            public void onResponse(Call<AuthApi.ProgressResponse> call, Response<AuthApi.ProgressResponse> response) {
+                if (response.isSuccessful() && response.body() != null && tvTotalWorkouts != null) {
+                    Integer total = response.body().getTotalWorkouts();
+                    tvTotalWorkouts.setText(String.valueOf(total == null ? 0 : total));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AuthApi.ProgressResponse> call, Throwable t) {
+            }
+        });
+    }
+
+    private void loadWorkoutPlanPreview(TextView tvUpcomingDate, TextView tvUpcomingWorkoutName) {
+        authService.getWorkoutPlan().enqueue(new Callback<AuthApi.WorkoutPlanResponse>() {
+            @Override
+            public void onResponse(Call<AuthApi.WorkoutPlanResponse> call, Response<AuthApi.WorkoutPlanResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<AuthApi.WorkoutPlanDay> plan = response.body().getPlan();
+                    if (plan != null && !plan.isEmpty()) {
+                        AuthApi.WorkoutPlanDay first = plan.get(0);
+                        if (tvUpcomingDate != null) {
+                            tvUpcomingDate.setText(capitalize(first.getDay()));
+                        }
+                        if (tvUpcomingWorkoutName != null) {
+                            tvUpcomingWorkoutName.setText(first.getWorkout());
+                        }
+                        return;
+                    }
+                }
+
+                setDefaultUpcoming(tvUpcomingDate, tvUpcomingWorkoutName);
+            }
+
+            @Override
+            public void onFailure(Call<AuthApi.WorkoutPlanResponse> call, Throwable t) {
+                setDefaultUpcoming(tvUpcomingDate, tvUpcomingWorkoutName);
+            }
+        });
+    }
+
+    private void setDefaultUpcoming(TextView tvUpcomingDate, TextView tvUpcomingWorkoutName) {
+        if (tvUpcomingDate != null) {
+            Calendar next = Calendar.getInstance();
+            next.add(Calendar.DAY_OF_YEAR, 1);
+            String date = new SimpleDateFormat("EEEE, MMM d yyyy", Locale.getDefault()).format(next.getTime());
+            tvUpcomingDate.setText(date);
+        }
+        if (tvUpcomingWorkoutName != null) {
+            tvUpcomingWorkoutName.setText("No workout plan yet");
+        }
+    }
+
+    private String capitalize(String value) {
+        if (value == null || value.isEmpty()) return "";
+        return value.substring(0, 1).toUpperCase() + value.substring(1);
     }
 }

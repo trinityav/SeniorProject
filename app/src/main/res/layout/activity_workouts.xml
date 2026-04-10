@@ -8,7 +8,6 @@
     android:background="@drawable/fs_bg_gradient"
     tools:context=".WorkoutsActivity">
 
-    <!-- Page Title -->
     <TextView
         android:id="@+id/tvWorkoutsTitle"
         android:layout_width="wrap_content"
@@ -22,7 +21,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- White Rounded Card -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/workoutsCard"
         android:layout_width="0dp"
@@ -42,7 +40,6 @@
             android:layout_height="match_parent"
             android:padding="20dp">
 
-            <!-- RecyclerView for workout list -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerWorkouts"
                 android:layout_width="0dp"
@@ -54,12 +51,11 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
-            <!-- Add Workout Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAddWorkout"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
-                android:text="Add Workout"
+                android:text="Refresh Plan"
                 android:textAllCaps="false"
                 android:textStyle="bold"
                 android:textColor="#FFFFFF"

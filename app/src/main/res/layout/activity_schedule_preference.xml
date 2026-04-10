@@ -129,7 +129,9 @@
                     android:id="@+id/etStartTime"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Start Time (example: 5:00 PM)"
+                    android:hint="Start Time, HH:mm"
+                    android:focusable="false"
+                    android:clickable="true"
                     android:padding="14dp"
                     android:layout_marginBottom="12dp"
                     android:backgroundTint="#0A6EA0" />
@@ -138,7 +140,9 @@
                     android:id="@+id/etEndTime"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="End Time (example: 8:00 PM)"
+                    android:hint="End Time, HH:mm"
+                    android:focusable="false"
+                    android:clickable="true"
                     android:padding="14dp"
                     android:layout_marginBottom="20dp"
                     android:backgroundTint="#0A6EA0" />
@@ -154,15 +158,6 @@
                     android:layout_marginTop="20dp"
                     app:cornerRadius="26dp"
                     app:backgroundTint="#58B056" />
-
-                <TextView
-                    android:id="@+id/tvScheduleResult"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textColor="#111111"
-                    android:textSize="15sp"
-                    android:layout_marginTop="20dp" />
 
             </LinearLayout>
         </ScrollView>

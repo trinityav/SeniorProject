@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.CheckBox;
@@ -8,114 +9,130 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.myapplication.data.local.AppDatabase;
-import com.example.myapplication.data.local.ScheduleEntry;
-import com.example.myapplication.data.local.ScheduleEntryDao;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
-import java.util.concurrent.Executors;
+import java.util.List;
+import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SchedulePreferencesActivity extends AppCompatActivity {
 
     private CheckBox cbMonday, cbTuesday, cbWednesday, cbThursday, cbFriday, cbSaturday, cbSunday;
     private EditText etStartTime, etEndTime;
+    private MaterialButton btnSaveSchedule;
+    private AuthApi.AuthService authService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_schedule_preference);
 
-        cbMonday    = findViewById(R.id.cbMonday);
-        cbTuesday   = findViewById(R.id.cbTuesday);
+        authService = AuthApi.getService(this);
+
+        cbMonday = findViewById(R.id.cbMonday);
+        cbTuesday = findViewById(R.id.cbTuesday);
         cbWednesday = findViewById(R.id.cbWednesday);
-        cbThursday  = findViewById(R.id.cbThursday);
-        cbFriday    = findViewById(R.id.cbFriday);
-        cbSaturday  = findViewById(R.id.cbSaturday);
-        cbSunday    = findViewById(R.id.cbSunday);
+        cbThursday = findViewById(R.id.cbThursday);
+        cbFriday = findViewById(R.id.cbFriday);
+        cbSaturday = findViewById(R.id.cbSaturday);
+        cbSunday = findViewById(R.id.cbSunday);
         etStartTime = findViewById(R.id.etStartTime);
-        etEndTime   = findViewById(R.id.etEndTime);
+        etEndTime = findViewById(R.id.etEndTime);
+        btnSaveSchedule = findViewById(R.id.btnSaveSchedule);
 
-        MaterialButton btnSaveSchedule = findViewById(R.id.btnSaveSchedule);
+        etStartTime.setOnClickListener(v -> showTimePicker(etStartTime));
+        etEndTime.setOnClickListener(v -> showTimePicker(etEndTime));
 
-        // If editing, pre-load existing schedule
-        loadExistingSchedule();
+        btnSaveSchedule.setOnClickListener(v -> saveScheduleAndGeneratePlan());
+    }
 
-        btnSaveSchedule.setOnClickListener(v -> {
-            ArrayList<String> selectedDays = new ArrayList<>();
-            if (cbMonday.isChecked())    selectedDays.add("Monday");
-            if (cbTuesday.isChecked())   selectedDays.add("Tuesday");
-            if (cbWednesday.isChecked()) selectedDays.add("Wednesday");
-            if (cbThursday.isChecked())  selectedDays.add("Thursday");
-            if (cbFriday.isChecked())    selectedDays.add("Friday");
-            if (cbSaturday.isChecked())  selectedDays.add("Saturday");
-            if (cbSunday.isChecked())    selectedDays.add("Sunday");
+    private void showTimePicker(EditText target) {
+        TimePickerDialog dialog = new TimePickerDialog(
+                this,
+                (view, hourOfDay, minute) -> target.setText(String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute)),
+                18,
+                0,
+                true
+        );
+        dialog.show();
+    }
 
-            String startTime = etStartTime.getText().toString().trim();
-            String endTime   = etEndTime.getText().toString().trim();
+    private void saveScheduleAndGeneratePlan() {
+        List<AuthApi.AvailabilityItem> availability = new ArrayList<>();
 
-            if (selectedDays.isEmpty()) {
-                Toast.makeText(this, "Please select at least one day", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (startTime.isEmpty() || endTime.isEmpty()) {
-                Toast.makeText(this, "Please enter start and end time", Toast.LENGTH_SHORT).show();
-                return;
-            }
+        String startTime = etStartTime.getText().toString().trim();
+        String endTime = etEndTime.getText().toString().trim();
 
-            ScheduleEntryDao dao = AppDatabase.getInstance(this).scheduleEntryDao();
+        if (startTime.isEmpty() || endTime.isEmpty()) {
+            Toast.makeText(this, "Please choose start and end time", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-            Executors.newSingleThreadExecutor().execute(() -> {
-                // Clear old schedule and save new one
-                dao.deleteAll();
-                for (String day : selectedDays) {
-                    dao.insertOrUpdate(new ScheduleEntry(day, startTime, endTime));
+        addIfChecked(availability, cbMonday, "monday", startTime, endTime);
+        addIfChecked(availability, cbTuesday, "tuesday", startTime, endTime);
+        addIfChecked(availability, cbWednesday, "wednesday", startTime, endTime);
+        addIfChecked(availability, cbThursday, "thursday", startTime, endTime);
+        addIfChecked(availability, cbFriday, "friday", startTime, endTime);
+        addIfChecked(availability, cbSaturday, "saturday", startTime, endTime);
+        addIfChecked(availability, cbSunday, "sunday", startTime, endTime);
+
+        if (availability.isEmpty()) {
+            Toast.makeText(this, "Please select at least one day", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        btnSaveSchedule.setEnabled(false);
+
+        authService.saveAvailability(availability).enqueue(new Callback<AuthApi.MessageResponse>() {
+            @Override
+            public void onResponse(Call<AuthApi.MessageResponse> call, Response<AuthApi.MessageResponse> response) {
+                if (response.isSuccessful()) {
+                    generateWorkoutPlan();
+                } else {
+                    btnSaveSchedule.setEnabled(true);
+                    Toast.makeText(SchedulePreferencesActivity.this, "Failed to save schedule", Toast.LENGTH_SHORT).show();
                 }
+            }
 
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Schedule saved!", Toast.LENGTH_SHORT).show();
-
-                    // Check if we came from EditSchedule (stats) or signup flow
-                    boolean fromEdit = getIntent().getBooleanExtra("fromEdit", false);
-                    if (fromEdit) {
-                        finish(); // go back to Stats
-                    } else {
-                        startActivity(new Intent(this, HomeScreen.class));
-                        finish();
-                    }
-                });
-            });
+            @Override
+            public void onFailure(Call<AuthApi.MessageResponse> call, Throwable t) {
+                btnSaveSchedule.setEnabled(true);
+                Toast.makeText(SchedulePreferencesActivity.this, "Server error while saving schedule", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
-    private void loadExistingSchedule() {
-        boolean fromEdit = getIntent().getBooleanExtra("fromEdit", false);
-        if (!fromEdit) return;
+    private void generateWorkoutPlan() {
+        authService.generateWorkoutPlan().enqueue(new Callback<AuthApi.MessageResponse>() {
+            @Override
+            public void onResponse(Call<AuthApi.MessageResponse> call, Response<AuthApi.MessageResponse> response) {
+                btnSaveSchedule.setEnabled(true);
 
-        ScheduleEntryDao dao = AppDatabase.getInstance(this).scheduleEntryDao();
-        Executors.newSingleThreadExecutor().execute(() -> {
-            java.util.List<ScheduleEntry> entries = dao.getAllEntries();
-            if (entries.isEmpty()) return;
-
-            // Use first entry's times (all days share same time window)
-            String start = entries.get(0).startTime;
-            String end   = entries.get(0).endTime;
-
-            runOnUiThread(() -> {
-                etStartTime.setText(start);
-                etEndTime.setText(end);
-                for (ScheduleEntry entry : entries) {
-                    switch (entry.dayOfWeek) {
-                        case "Monday":    cbMonday.setChecked(true);    break;
-                        case "Tuesday":   cbTuesday.setChecked(true);   break;
-                        case "Wednesday": cbWednesday.setChecked(true); break;
-                        case "Thursday":  cbThursday.setChecked(true);  break;
-                        case "Friday":    cbFriday.setChecked(true);    break;
-                        case "Saturday":  cbSaturday.setChecked(true);  break;
-                        case "Sunday":    cbSunday.setChecked(true);    break;
-                    }
+                if (response.isSuccessful()) {
+                    Toast.makeText(SchedulePreferencesActivity.this, "Workout plan generated", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(SchedulePreferencesActivity.this, WorkoutsActivity.class);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Toast.makeText(SchedulePreferencesActivity.this, "Schedule saved, but plan generation failed", Toast.LENGTH_SHORT).show();
                 }
-            });
+            }
+
+            @Override
+            public void onFailure(Call<AuthApi.MessageResponse> call, Throwable t) {
+                btnSaveSchedule.setEnabled(true);
+                Toast.makeText(SchedulePreferencesActivity.this, "Server error while generating plan", Toast.LENGTH_SHORT).show();
+            }
         });
+    }
+
+    private void addIfChecked(List<AuthApi.AvailabilityItem> list, CheckBox checkBox, String day, String startTime, String endTime) {
+        if (checkBox.isChecked()) {
+            list.add(new AuthApi.AvailabilityItem(day, startTime, endTime));
+        }
     }
 }

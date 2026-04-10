@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/fs_bg_gradient"
-    tools:context=".UserDetailsActivity">
+    tools:context=".UserDetails">
 
     <TextView
         android:id="@+id/tvTitle"
@@ -25,7 +25,7 @@
         android:id="@+id/tvSubtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Enter your basic fitness details"
+        android:text="Enter your fitness details"
         android:textColor="#EAF0F2"
         android:textSize="14sp"
         android:layout_marginTop="8dp"
@@ -66,22 +66,51 @@
                     android:layout_marginBottom="12dp"
                     android:backgroundTint="#0A6EA0" />
 
-                <EditText
-                    android:id="@+id/etHeight"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Height"
+                    android:textStyle="bold"
+                    android:textColor="#111111"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Height (cm)"
-                    android:inputType="numberDecimal"
-                    android:padding="14dp"
-                    android:layout_marginBottom="12dp"
-                    android:backgroundTint="#0A6EA0" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <EditText
+                        android:id="@+id/etHeightFeet"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Feet"
+                        android:inputType="number"
+                        android:padding="14dp"
+                        android:backgroundTint="#0A6EA0" />
+
+                    <Space
+                        android:layout_width="12dp"
+                        android:layout_height="1dp" />
+
+                    <EditText
+                        android:id="@+id/etHeightInches"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Inches"
+                        android:inputType="number"
+                        android:padding="14dp"
+                        android:backgroundTint="#0A6EA0" />
+                </LinearLayout>
 
                 <EditText
                     android:id="@+id/etWeight"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Weight (kg)"
-                    android:inputType="numberDecimal"
+                    android:hint="Weight in lbs"
+                    android:inputType="number"
                     android:padding="14dp"
                     android:layout_marginBottom="12dp"
                     android:backgroundTint="#0A6EA0" />
@@ -90,36 +119,51 @@
                     android:id="@+id/etGender"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Gender"
+                    android:hint="Gender, male or female"
                     android:padding="14dp"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="16dp"
                     android:backgroundTint="#0A6EA0" />
 
-                <EditText
-                    android:id="@+id/etGoal"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Difficulty"
+                    android:textStyle="bold"
+                    android:textColor="#111111"
+                    android:layout_marginBottom="8dp" />
+
+                <RadioGroup
+                    android:id="@+id/rgDifficulty"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Fitness Goal"
-                    android:padding="14dp"
-                    android:layout_marginBottom="20dp"
-                    android:backgroundTint="#0A6EA0" />
+                    android:layout_marginBottom="20dp">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnFinishSignup"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:text="Finish Sign Up"
-                    android:textAllCaps="false"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-                    app:cornerRadius="26dp"
-                    app:backgroundTint="#58B056" />
+                    <RadioButton
+                        android:id="@+id/rbBeginner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Beginner"
+                        android:textColor="#111111" />
+
+                    <RadioButton
+                        android:id="@+id/rbIntermediate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Intermediate"
+                        android:textColor="#111111" />
+
+                    <RadioButton
+                        android:id="@+id/rbAdvanced"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Advanced"
+                        android:textColor="#111111" />
+                </RadioGroup>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnGoToSchedule"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:layout_marginTop="12dp"
                     android:text="Set My Schedule"
                     android:textAllCaps="false"
                     android:textStyle="bold"
