@@ -7,7 +7,7 @@ from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
 from Backend.ai_engine import generate_workout_plan_for_user
-from Backend.chatbot import answer_fitness_question
+#from Backend.chatbot import answer_fitness_question
 from Backend.database import engine, get_db
 from Backend.auth.dependencies import get_current_user
 import Backend.models as models
