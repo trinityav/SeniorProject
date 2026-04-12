@@ -164,7 +164,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Workout Schedule"
+                    android:text="Weekly Activity"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="#1A1A2E" />
@@ -273,7 +273,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Water Intake Log"
+                android:text="Water Intake"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="#1A1A2E"
@@ -281,38 +281,72 @@
                 android:layout_marginBottom="10dp" />
 
             <LinearLayout
-                android:id="@+id/lineChartPlaceholder"
+                android:id="@+id/waterTapArea"
                 android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:background="@drawable/bg_chart_placeholder"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:gravity="center"
-                android:padding="16dp">
+                android:background="@drawable/bg_stat_pill"
+                android:padding="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="10dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="💧"
+                        android:textSize="22sp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Daily Water Goal"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A2E"
+                        android:layout_marginStart="10dp" />
+
+                    <TextView
+                        android:id="@+id/tvWaterAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0 / 2000 ml"
+                        android:textSize="12sp"
+                        android:textColor="#0078AE"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp"
+                    android:background="@drawable/bg_water_track">
+
+                    <LinearLayout
+                        android:id="@+id/waterMeterFill"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_water_fill"
+                        android:orientation="horizontal" />
+
+                </FrameLayout>
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="💧"
-                    android:textSize="36sp"
-                    android:gravity="center" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Water intake chart"
-                    android:textSize="13sp"
-                    android:textColor="#888888"
-                    android:gravity="center"
-                    android:layout_marginTop="6dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Coming soon with MPAndroidChart"
+                    android:text="Tap to log +250ml"
                     android:textSize="11sp"
                     android:textColor="#AAAAAA"
                     android:gravity="center"
-                    android:layout_marginTop="2dp" />
+                    android:layout_marginTop="8dp" />
 
             </LinearLayout>
 

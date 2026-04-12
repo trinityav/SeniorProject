@@ -1,10 +1,13 @@
 package com.example.myapplication;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.GridLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +34,14 @@ import retrofit2.Response;
 
 public class Stats extends BaseActivity {
 
+    // ── Water constants ───────────────────────────────────────────────────
+    private static final int    WATER_GOAL_ML    = 2000;
+    private static final int    WATER_STEP_ML    = 250;
+    private static final String PREF_WATER       = "water_prefs";
+    private static final String KEY_WATER        = "water_today_ml";
+    private static final String KEY_WATER_DATE   = "water_date";
+
+    // ── Existing fields ───────────────────────────────────────────────────
     private GridLayout calendarGrid;
     private TextView tvMonthYear;
     private TextView tvPrev;
@@ -41,21 +52,28 @@ public class Stats extends BaseActivity {
     private TextView tvRecentWorkout1;
     private TextView tvRecentWorkout1Date;
 
+    // ── Water fields ──────────────────────────────────────────────────────
+    private LinearLayout waterMeterFill;
+    private TextView     tvWaterAmount;
+
     private Calendar displayedMonth;
     private final Set<String> workoutDayNames = new HashSet<>();
     private final Map<String, AuthApi.WorkoutPlanItem> workoutPlanByDay = new HashMap<>();
+
+    // Tracks which dates the user has manually toggled complete this session
+    private final Set<String> completedDates = new HashSet<>();
 
     private AuthApi.AuthService authService;
 
     private static final Map<Integer, String> DAY_NAMES = new HashMap<>();
     static {
-        DAY_NAMES.put(Calendar.MONDAY, "monday");
-        DAY_NAMES.put(Calendar.TUESDAY, "tuesday");
+        DAY_NAMES.put(Calendar.MONDAY,    "monday");
+        DAY_NAMES.put(Calendar.TUESDAY,   "tuesday");
         DAY_NAMES.put(Calendar.WEDNESDAY, "wednesday");
-        DAY_NAMES.put(Calendar.THURSDAY, "thursday");
-        DAY_NAMES.put(Calendar.FRIDAY, "friday");
-        DAY_NAMES.put(Calendar.SATURDAY, "saturday");
-        DAY_NAMES.put(Calendar.SUNDAY, "sunday");
+        DAY_NAMES.put(Calendar.THURSDAY,  "thursday");
+        DAY_NAMES.put(Calendar.FRIDAY,    "friday");
+        DAY_NAMES.put(Calendar.SATURDAY,  "saturday");
+        DAY_NAMES.put(Calendar.SUNDAY,    "sunday");
     }
 
     @Override
@@ -75,16 +93,30 @@ public class Stats extends BaseActivity {
 
         authService = AuthApi.getService(this);
 
-        calendarGrid = findViewById(R.id.calendarGrid);
-        tvMonthYear = findViewById(R.id.tvCalendarMonthYear);
-        tvPrev = findViewById(R.id.tvCalendarPrev);
-        tvNext = findViewById(R.id.tvCalendarNext);
+        // ── Existing view bindings ────────────────────────────────────────
+        calendarGrid        = findViewById(R.id.calendarGrid);
+        tvMonthYear         = findViewById(R.id.tvCalendarMonthYear);
+        tvPrev              = findViewById(R.id.tvCalendarPrev);
+        tvNext              = findViewById(R.id.tvCalendarNext);
         tvWorkoutsCompleted = findViewById(R.id.tvWorkoutsCompleted);
-        tvCurrentStreak = findViewById(R.id.tvCurrentStreak);
-        tvLastWorkout = findViewById(R.id.tvLastWorkout);
-        tvRecentWorkout1 = findViewById(R.id.tvRecentWorkout1);
+        tvCurrentStreak     = findViewById(R.id.tvCurrentStreak);
+        tvLastWorkout       = findViewById(R.id.tvLastWorkout);
+        tvRecentWorkout1    = findViewById(R.id.tvRecentWorkout1);
         tvRecentWorkout1Date = findViewById(R.id.tvRecentWorkout1Date);
 
+        // ── Water view bindings ───────────────────────────────────────────
+        waterMeterFill = findViewById(R.id.waterMeterFill);
+        tvWaterAmount  = findViewById(R.id.tvWaterAmount);
+
+        LinearLayout waterTapArea = findViewById(R.id.waterTapArea);
+        if (waterTapArea != null) {
+            waterTapArea.setOnClickListener(v -> addWater());
+        }
+
+        resetWaterIfNewDay();
+        updateWaterUI();
+
+        // ── Existing logic ────────────────────────────────────────────────
         displayedMonth = Calendar.getInstance();
 
         tvPrev.setOnClickListener(v -> {
@@ -115,6 +147,8 @@ public class Stats extends BaseActivity {
         loadStatsData();
     }
 
+    // ── Existing methods (unchanged) ──────────────────────────────────────
+
     private void loadStatsData() {
         loadProgress();
         loadWorkoutPlan();
@@ -127,38 +161,20 @@ public class Stats extends BaseActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     AuthApi.ProgressResponse progress = response.body();
 
-                    int total = progress.getTotalWorkouts() != null ? progress.getTotalWorkouts() : 0;
-                    int streak = progress.getCurrentStreak() != null ? progress.getCurrentStreak() : 0;
+                    int total  = progress.getTotalWorkouts()  != null ? progress.getTotalWorkouts()  : 0;
+                    int streak = progress.getCurrentStreak()  != null ? progress.getCurrentStreak()  : 0;
                     String lastWorkout = progress.getLastWorkout() != null && !progress.getLastWorkout().isEmpty()
-                            ? progress.getLastWorkout()
-                            : "—";
+                            ? progress.getLastWorkout() : "—";
 
-                    if (tvWorkoutsCompleted != null) {
-                        tvWorkoutsCompleted.setText(String.valueOf(total));
-                    }
-
-                    if (tvCurrentStreak != null) {
-                        tvCurrentStreak.setText(streak + "🔥");
-                    }
-
-                    if (tvLastWorkout != null) {
-                        tvLastWorkout.setText(lastWorkout);
-                    }
+                    if (tvWorkoutsCompleted != null) tvWorkoutsCompleted.setText(String.valueOf(total));
+                    if (tvCurrentStreak    != null) tvCurrentStreak.setText(streak + "🔥");
+                    if (tvLastWorkout      != null) tvLastWorkout.setText(lastWorkout);
 
                     if (tvRecentWorkout1 != null) {
-                        if ("—".equals(lastWorkout)) {
-                            tvRecentWorkout1.setText("No workouts yet");
-                        } else {
-                            tvRecentWorkout1.setText("Last completed workout");
-                        }
+                        tvRecentWorkout1.setText("—".equals(lastWorkout) ? "No workouts yet" : "Last completed workout");
                     }
-
                     if (tvRecentWorkout1Date != null) {
-                        if ("—".equals(lastWorkout)) {
-                            tvRecentWorkout1Date.setText("Complete your first workout");
-                        } else {
-                            tvRecentWorkout1Date.setText(lastWorkout);
-                        }
+                        tvRecentWorkout1Date.setText("—".equals(lastWorkout) ? "Complete your first workout" : lastWorkout);
                     }
                 }
             }
@@ -178,9 +194,7 @@ public class Stats extends BaseActivity {
                 workoutPlanByDay.clear();
 
                 if (response.isSuccessful() && response.body() != null && response.body().getItems() != null) {
-                    List<AuthApi.WorkoutPlanItem> items = response.body().getItems();
-
-                    for (AuthApi.WorkoutPlanItem item : items) {
+                    for (AuthApi.WorkoutPlanItem item : response.body().getItems()) {
                         if (item.getDay() != null) {
                             String normalizedDay = item.getDay().trim().toLowerCase();
                             workoutDayNames.add(normalizedDay);
@@ -201,19 +215,20 @@ public class Stats extends BaseActivity {
 
     private void buildCalendarGrid() {
         if (calendarGrid == null) return;
-
         calendarGrid.removeAllViews();
 
         if (tvMonthYear != null) {
-            tvMonthYear.setText(new SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(displayedMonth.getTime()));
+            tvMonthYear.setText(new SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+                    .format(displayedMonth.getTime()));
         }
 
         Calendar cal = (Calendar) displayedMonth.clone();
         cal.set(Calendar.DAY_OF_MONTH, 1);
 
         int firstDayOfWeek = cal.get(Calendar.DAY_OF_WEEK) - 1;
-        int daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
-        String todayStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().getTime());
+        int daysInMonth    = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+        String todayStr    = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                .format(Calendar.getInstance().getTime());
 
         for (int i = 0; i < firstDayOfWeek; i++) {
             calendarGrid.addView(makeEmptyCell());
@@ -223,11 +238,10 @@ public class Stats extends BaseActivity {
             Calendar dayCal = (Calendar) displayedMonth.clone();
             dayCal.set(Calendar.DAY_OF_MONTH, day);
 
-            String dateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(dayCal.getTime());
-            String dayName = DAY_NAMES.get(dayCal.get(Calendar.DAY_OF_WEEK));
+            String  dateStr     = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(dayCal.getTime());
+            String  dayName     = DAY_NAMES.get(dayCal.get(Calendar.DAY_OF_WEEK));
             boolean isScheduled = workoutDayNames.contains(dayName);
-            boolean isToday = dateStr.equals(todayStr);
-
+            boolean isToday     = dateStr.equals(todayStr);
             AuthApi.WorkoutPlanItem planItem = workoutPlanByDay.get(dayName);
 
             calendarGrid.addView(makeDayCell(day, dateStr, dayName, isScheduled, isToday, planItem));
@@ -245,7 +259,9 @@ public class Stats extends BaseActivity {
         return tv;
     }
 
-    private View makeDayCell(int day, String dateStr, String dayName, boolean isScheduled, boolean isToday, AuthApi.WorkoutPlanItem planItem) {
+    private View makeDayCell(int day, String dateStr, String dayName,
+                             boolean isScheduled, boolean isToday,
+                             AuthApi.WorkoutPlanItem planItem) {
         TextView tv = new TextView(this);
         GridLayout.LayoutParams params = new GridLayout.LayoutParams();
         params.width = 0;
@@ -257,7 +273,34 @@ public class Stats extends BaseActivity {
         tv.setText(String.valueOf(day));
         tv.setTextSize(13);
 
+        // Apply style (completed overrides scheduled)
+        applyDayCellStyle(tv, dateStr, isScheduled, isToday);
+
         if (isScheduled) {
+            tv.setOnClickListener(v -> {
+                // Toggle completed state
+                if (completedDates.contains(dateStr)) {
+                    completedDates.remove(dateStr);
+                } else {
+                    completedDates.add(dateStr);
+                }
+                applyDayCellStyle(tv, dateStr, true, isToday);
+
+                // Still show the detail dialog on tap
+                showDayDetail(dateStr, dayName, planItem);
+            });
+        }
+
+        return tv;
+    }
+
+    // ── NEW: split style into its own method so toggle can re-call it ─────
+    private void applyDayCellStyle(TextView tv, String dateStr,
+                                   boolean isScheduled, boolean isToday) {
+        if (completedDates.contains(dateStr)) {
+            tv.setBackgroundResource(R.drawable.bg_cal_day_done);
+            tv.setTextColor(Color.WHITE);
+        } else if (isScheduled) {
             tv.setBackgroundResource(R.drawable.bg_cal_day_workout);
             tv.setTextColor(getColor(android.R.color.white));
         } else if (isToday) {
@@ -267,12 +310,6 @@ public class Stats extends BaseActivity {
             tv.setBackgroundResource(R.drawable.bg_cal_day_default);
             tv.setTextColor(0xFF1A1A2E);
         }
-
-        if (isScheduled) {
-            tv.setOnClickListener(v -> showDayDetail(dateStr, dayName, planItem));
-        }
-
-        return tv;
     }
 
     private void showDayDetail(String dateStr, String dayName, AuthApi.WorkoutPlanItem planItem) {
@@ -281,21 +318,16 @@ public class Stats extends BaseActivity {
         msg.append("Workout day: ").append(capitalize(dayName)).append("\n");
 
         if (planItem != null) {
-            if (planItem.getFocus() != null) {
+            if (planItem.getFocus() != null)
                 msg.append("Workout: ").append(planItem.getFocus()).append("\n");
-            }
-
-            if (planItem.getEstimatedTotalMinutes() != null) {
+            if (planItem.getEstimatedTotalMinutes() != null)
                 msg.append("Duration: ").append(planItem.getEstimatedTotalMinutes()).append(" mins\n");
-            }
-
             if (planItem.getExercises() != null && !planItem.getExercises().isEmpty()) {
                 msg.append("\nExercises:\n");
                 for (AuthApi.ExerciseItem ex : planItem.getExercises()) {
                     String line = "• " + ex.getExerciseName();
-                    if (ex.getSets() != null && ex.getReps() != null) {
+                    if (ex.getSets() != null && ex.getReps() != null)
                         line += " , " + ex.getSets() + " sets x " + ex.getReps();
-                    }
                     msg.append(line).append("\n");
                 }
             }
@@ -307,6 +339,62 @@ public class Stats extends BaseActivity {
                 .setPositiveButton("Close", null)
                 .show();
     }
+
+    // ── Water methods (new) ───────────────────────────────────────────────
+
+    private void addWater() {
+        SharedPreferences prefs = getSharedPreferences(PREF_WATER, MODE_PRIVATE);
+        int current = prefs.getInt(KEY_WATER, 0);
+        current += WATER_STEP_ML;
+
+        if (current >= WATER_GOAL_ML) {
+            prefs.edit().putInt(KEY_WATER, WATER_GOAL_ML).apply();
+            updateWaterUI();
+            new AlertDialog.Builder(this)
+                    .setTitle("🎉 Goal Reached!")
+                    .setMessage("You hit your " + WATER_GOAL_ML + "ml water goal for today!")
+                    .setPositiveButton("Reset", (d, w) -> {
+                        prefs.edit().putInt(KEY_WATER, 0).apply();
+                        updateWaterUI();
+                    })
+                    .setCancelable(false)
+                    .show();
+        } else {
+            prefs.edit().putInt(KEY_WATER, current).apply();
+            updateWaterUI();
+        }
+    }
+
+    private void resetWaterIfNewDay() {
+        SharedPreferences prefs = getSharedPreferences(PREF_WATER, MODE_PRIVATE);
+        String today    = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                .format(Calendar.getInstance().getTime());
+        String lastDate = prefs.getString(KEY_WATER_DATE, "");
+        if (!today.equals(lastDate)) {
+            prefs.edit().putInt(KEY_WATER, 0).putString(KEY_WATER_DATE, today).apply();
+        }
+    }
+
+    private void updateWaterUI() {
+        if (waterMeterFill == null || tvWaterAmount == null) return;
+        SharedPreferences prefs = getSharedPreferences(PREF_WATER, MODE_PRIVATE);
+        int   current = prefs.getInt(KEY_WATER, 0);
+        float pct     = Math.min((float) current / WATER_GOAL_ML, 1f);
+
+        waterMeterFill.post(() -> {
+            View parent = (View) waterMeterFill.getParent();
+            if (parent == null) return;
+            int padding   = dpToPx(8);
+            int fillWidth = Math.round((parent.getWidth() - padding * 2) * pct);
+            android.view.ViewGroup.LayoutParams lp = waterMeterFill.getLayoutParams();
+            lp.width = Math.max(fillWidth, 0);
+            waterMeterFill.setLayoutParams(lp);
+        });
+
+        tvWaterAmount.setText(current + " / " + WATER_GOAL_ML + " ml");
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────
 
     private int dpToPx(int dp) {
         return Math.round(dp * getResources().getDisplayMetrics().density);
