@@ -184,29 +184,41 @@ public class HomeScreen extends BaseActivity {
                 return;
             }
 
-            String response = getAiCoachResponse(userQuestion);
-            tvAiResponse.setText(response);
+            tvAiResponse.setText("Thinking...");
+            btnSend.setEnabled(false);
+
+            AuthApi.ChatbotRequest request = new AuthApi.ChatbotRequest(userQuestion);
+
+            authService.askChatbot(request).enqueue(new Callback<AuthApi.ChatbotResponse>() {
+                @Override
+                public void onResponse(Call<AuthApi.ChatbotResponse> call, Response<AuthApi.ChatbotResponse> response) {
+                    btnSend.setEnabled(true);
+
+                    if (response.isSuccessful() && response.body() != null) {
+                        String answer = response.body().getAnswer();
+
+                        if (answer != null) {
+                            tvAiResponse.setText(android.text.Html.fromHtml(answer.replace("\n", "<br>")));
+                        } else {
+                            tvAiResponse.setText("No response received.");
+                        }
+
+                    } else if (response.code() == 401) {
+                        tvAiResponse.setText("You are not logged in. Please sign in again.");
+                    } else {
+                        tvAiResponse.setText("Chatbot request failed.");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<AuthApi.ChatbotResponse> call, Throwable t) {
+                    btnSend.setEnabled(true);
+                    tvAiResponse.setText("Error: " + t.getMessage());
+                }
+            });
         });
 
         btnClose.setOnClickListener(v -> dialog.dismiss());
-    }
-
-    private String getAiCoachResponse(String question) {
-        question = question.toLowerCase();
-
-        if (question.contains("leg")) {
-            return "For leg day, try squats, lunges, and leg press. Start with light weight and focus on good form.";
-        } else if (question.contains("chest")) {
-            return "For chest workout, you can do bench press, push-ups, and dumbbell fly.";
-        } else if (question.contains("cardio")) {
-            return "For cardio, try walking, jogging, cycling, or jump rope for 20 to 30 minutes.";
-        } else if (question.contains("weight loss")) {
-            return "For weight loss, stay active, eat balanced meals, and stay consistent with cardio and strength workouts.";
-        } else if (question.contains("abs")) {
-            return "For abs, try crunches, leg raises, planks, and mountain climbers.";
-        } else {
-            return "That is a good question. Try staying consistent, using proper form, and choosing workouts based on your fitness goal.";
-        }
     }
 
     private String capitalize(String value) {
