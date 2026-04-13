@@ -40,6 +40,14 @@ public class HomeScreen extends BaseActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
 
+// NEW CODE HERE
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT
+            );
+        }
+
         btnSend.setOnClickListener(v -> {
             String userQuestion = etUserQuestion.getText().toString().trim();
 
