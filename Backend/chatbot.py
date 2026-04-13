@@ -9,10 +9,11 @@ from openai import OpenAI
 from Backend.safety import should_refuse, validate_question
 from Backend.vector_store import load_workouts, search_workouts
 
-load_workouts()
 load_dotenv()
+load_workouts()
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 SYSTEM_PROMPT = """
 You are a strict fitness-only assistant.
@@ -33,6 +34,9 @@ def answer_fitness_question(question: str, user_profile: Optional[str] = None) -
     refusal = should_refuse(question)
     if refusal:
         return refusal
+
+    if not OPENAI_API_KEY:
+        return "Chatbot error: OPENAI_API_KEY is missing."
 
     context = "\n".join(search_workouts(question, n_results=5))
     profile_text = user_profile or "No user profile provided."
