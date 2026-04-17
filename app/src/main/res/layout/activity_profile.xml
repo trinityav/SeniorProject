@@ -179,46 +179,6 @@
                     android:layout_marginStart="18dp"
                     android:layout_marginEnd="18dp" />
 
-                <LinearLayout
-                    android:id="@+id/settingChangeEmail"
-                    android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingStart="18dp"
-                    android:paddingEnd="18dp"
-                    android:background="?attr/selectableItemBackground">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="✉️"
-                        android:textSize="18sp" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Change Email"
-                        android:textSize="14sp"
-                        android:textColor="@color/settings_text"
-                        android:layout_marginStart="14dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="›"
-                        android:textSize="20sp"
-                        android:textColor="#AAAAAA" />
-
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/divider_color"
-                    android:layout_marginStart="18dp"
-                    android:layout_marginEnd="18dp" />
 
                 <LinearLayout
                     android:id="@+id/settingChangePassword"

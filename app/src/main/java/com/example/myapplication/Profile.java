@@ -40,10 +40,6 @@ public class Profile extends BaseActivity {
                 Toast.makeText(this, "Change username not added yet", Toast.LENGTH_SHORT).show()
         );
 
-        findViewById(R.id.settingChangeEmail).setOnClickListener(v ->
-                Toast.makeText(this, "Email is not used in auth right now", Toast.LENGTH_SHORT).show()
-        );
-
         findViewById(R.id.settingChangePassword).setOnClickListener(v ->
                 Toast.makeText(this, "Change password not added yet", Toast.LENGTH_SHORT).show()
         );
