@@ -37,6 +37,11 @@ public class HomeScreen extends BaseActivity {
     private CardView cardAiCoach;
     private AuthApi.AuthService authService;
 
+    private TextView greetingText;
+    private TextView tvTotalWorkouts;
+    private TextView tvUpcomingDate;
+    private TextView tvUpcomingWorkoutName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,19 +60,19 @@ public class HomeScreen extends BaseActivity {
 
         authService = AuthApi.getService(this);
 
-        TextView greetingText = findViewById(R.id.greetingText);
+        greetingText = findViewById(R.id.greetingText);
+        tvTotalWorkouts = findViewById(R.id.tvTotalWorkouts);
+        tvUpcomingDate = findViewById(R.id.tvUpcomingDate);
+        tvUpcomingWorkoutName = findViewById(R.id.tvUpcomingWorkoutName);
+
         String username = sessionManager.getUsername();
         if (greetingText != null) {
             String line = GREETINGS[new Random().nextInt(GREETINGS.length)];
             greetingText.setText("Hi, " + username + "\n" + line);
         }
 
-        TextView tvTotalWorkouts = findViewById(R.id.tvTotalWorkouts);
-        TextView tvUpcomingDate = findViewById(R.id.tvUpcomingDate);
-        TextView tvUpcomingWorkoutName = findViewById(R.id.tvUpcomingWorkoutName);
-
-        loadProgress(tvTotalWorkouts);
-        loadWorkoutPlanPreview(tvUpcomingDate, tvUpcomingWorkoutName);
+        loadProgress();
+        loadWorkoutPlanPreview();
 
         Button startWorkoutButton = findViewById(R.id.startWorkoutButton);
         if (startWorkoutButton != null) {
@@ -89,7 +94,14 @@ public class HomeScreen extends BaseActivity {
         }
     }
 
-    private void loadProgress(TextView tvTotalWorkouts) {
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadProgress();
+        loadWorkoutPlanPreview();
+    }
+
+    private void loadProgress() {
         authService.getProgress().enqueue(new Callback<AuthApi.ProgressResponse>() {
             @Override
             public void onResponse(Call<AuthApi.ProgressResponse> call, Response<AuthApi.ProgressResponse> response) {
@@ -108,7 +120,7 @@ public class HomeScreen extends BaseActivity {
         });
     }
 
-    private void loadWorkoutPlanPreview(TextView tvUpcomingDate, TextView tvUpcomingWorkoutName) {
+    private void loadWorkoutPlanPreview() {
         authService.getWorkoutPlan().enqueue(new Callback<AuthApi.WorkoutPlanResponse>() {
             @Override
             public void onResponse(Call<AuthApi.WorkoutPlanResponse> call, Response<AuthApi.WorkoutPlanResponse> response) {
@@ -132,17 +144,17 @@ public class HomeScreen extends BaseActivity {
                     }
                 }
 
-                setDefaultUpcoming(tvUpcomingDate, tvUpcomingWorkoutName);
+                setDefaultUpcoming();
             }
 
             @Override
             public void onFailure(Call<AuthApi.WorkoutPlanResponse> call, Throwable t) {
-                setDefaultUpcoming(tvUpcomingDate, tvUpcomingWorkoutName);
+                setDefaultUpcoming();
             }
         });
     }
 
-    private void setDefaultUpcoming(TextView tvUpcomingDate, TextView tvUpcomingWorkoutName) {
+    private void setDefaultUpcoming() {
         if (tvUpcomingDate != null) {
             Calendar next = Calendar.getInstance();
             next.add(Calendar.DAY_OF_YEAR, 1);

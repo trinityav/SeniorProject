@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
@@ -20,7 +19,9 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.button.MaterialButton;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,14 +35,11 @@ import retrofit2.Response;
 
 public class Stats extends BaseActivity {
 
-    // ── Water constants ───────────────────────────────────────────────────
-    private static final int    WATER_GOAL_ML    = 2000;
-    private static final int    WATER_STEP_ML    = 250;
-    private static final String PREF_WATER       = "water_prefs";
-    private static final String KEY_WATER        = "water_today_ml";
-    private static final String KEY_WATER_DATE   = "water_date";
+    private static final int WATER_GOAL_ML = 2000;
+    private static final int WATER_STEP_ML = 250;
+    private static final String KEY_WATER = "water_today_ml";
+    private static final String KEY_WATER_DATE = "water_date";
 
-    // ── Existing fields ───────────────────────────────────────────────────
     private GridLayout calendarGrid;
     private TextView tvMonthYear;
     private TextView tvPrev;
@@ -52,28 +50,26 @@ public class Stats extends BaseActivity {
     private TextView tvRecentWorkout1;
     private TextView tvRecentWorkout1Date;
 
-    // ── Water fields ──────────────────────────────────────────────────────
     private LinearLayout waterMeterFill;
-    private TextView     tvWaterAmount;
+    private TextView tvWaterAmount;
 
     private Calendar displayedMonth;
     private final Set<String> workoutDayNames = new HashSet<>();
     private final Map<String, AuthApi.WorkoutPlanItem> workoutPlanByDay = new HashMap<>();
-
-    // Tracks which dates the user has manually toggled complete this session
     private final Set<String> completedDates = new HashSet<>();
 
     private AuthApi.AuthService authService;
+    private String currentUsername;
 
     private static final Map<Integer, String> DAY_NAMES = new HashMap<>();
     static {
-        DAY_NAMES.put(Calendar.MONDAY,    "monday");
-        DAY_NAMES.put(Calendar.TUESDAY,   "tuesday");
+        DAY_NAMES.put(Calendar.MONDAY, "monday");
+        DAY_NAMES.put(Calendar.TUESDAY, "tuesday");
         DAY_NAMES.put(Calendar.WEDNESDAY, "wednesday");
-        DAY_NAMES.put(Calendar.THURSDAY,  "thursday");
-        DAY_NAMES.put(Calendar.FRIDAY,    "friday");
-        DAY_NAMES.put(Calendar.SATURDAY,  "saturday");
-        DAY_NAMES.put(Calendar.SUNDAY,    "sunday");
+        DAY_NAMES.put(Calendar.THURSDAY, "thursday");
+        DAY_NAMES.put(Calendar.FRIDAY, "friday");
+        DAY_NAMES.put(Calendar.SATURDAY, "saturday");
+        DAY_NAMES.put(Calendar.SUNDAY, "sunday");
     }
 
     @Override
@@ -82,6 +78,12 @@ public class Stats extends BaseActivity {
 
         EdgeToEdge.enable(this);
         setActivityLayout(R.layout.activity_stats);
+
+        SessionManager sessionManager = new SessionManager(this);
+        currentUsername = sessionManager.getUsername();
+        if (currentUsername == null || currentUsername.trim().isEmpty()) {
+            currentUsername = "default_user";
+        }
 
         if (findViewById(R.id.statsRoot) != null) {
             ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.statsRoot), (v, insets) -> {
@@ -93,20 +95,18 @@ public class Stats extends BaseActivity {
 
         authService = AuthApi.getService(this);
 
-        // ── Existing view bindings ────────────────────────────────────────
-        calendarGrid        = findViewById(R.id.calendarGrid);
-        tvMonthYear         = findViewById(R.id.tvCalendarMonthYear);
-        tvPrev              = findViewById(R.id.tvCalendarPrev);
-        tvNext              = findViewById(R.id.tvCalendarNext);
+        calendarGrid = findViewById(R.id.calendarGrid);
+        tvMonthYear = findViewById(R.id.tvCalendarMonthYear);
+        tvPrev = findViewById(R.id.tvCalendarPrev);
+        tvNext = findViewById(R.id.tvCalendarNext);
         tvWorkoutsCompleted = findViewById(R.id.tvWorkoutsCompleted);
-        tvCurrentStreak     = findViewById(R.id.tvCurrentStreak);
-        tvLastWorkout       = findViewById(R.id.tvLastWorkout);
-        tvRecentWorkout1    = findViewById(R.id.tvRecentWorkout1);
+        tvCurrentStreak = findViewById(R.id.tvCurrentStreak);
+        tvLastWorkout = findViewById(R.id.tvLastWorkout);
+        tvRecentWorkout1 = findViewById(R.id.tvRecentWorkout1);
         tvRecentWorkout1Date = findViewById(R.id.tvRecentWorkout1Date);
 
-        // ── Water view bindings ───────────────────────────────────────────
         waterMeterFill = findViewById(R.id.waterMeterFill);
-        tvWaterAmount  = findViewById(R.id.tvWaterAmount);
+        tvWaterAmount = findViewById(R.id.tvWaterAmount);
 
         LinearLayout waterTapArea = findViewById(R.id.waterTapArea);
         if (waterTapArea != null) {
@@ -116,7 +116,6 @@ public class Stats extends BaseActivity {
         resetWaterIfNewDay();
         updateWaterUI();
 
-        // ── Existing logic ────────────────────────────────────────────────
         displayedMonth = Calendar.getInstance();
 
         tvPrev.setOnClickListener(v -> {
@@ -138,52 +137,101 @@ public class Stats extends BaseActivity {
             });
         }
 
+        loadCompletedDatesFromPrefs();
         loadStatsData();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        loadCompletedDatesFromPrefs();
         loadStatsData();
     }
 
-    // ── Existing methods (unchanged) ──────────────────────────────────────
-
     private void loadStatsData() {
-        loadProgress();
+        loadLocalProgress();
         loadWorkoutPlan();
     }
 
-    private void loadProgress() {
-        authService.getProgress().enqueue(new Callback<AuthApi.ProgressResponse>() {
-            @Override
-            public void onResponse(Call<AuthApi.ProgressResponse> call, Response<AuthApi.ProgressResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    AuthApi.ProgressResponse progress = response.body();
+    private void loadLocalProgress() {
+        List<String> sortedDates = new ArrayList<>(completedDates);
+        Collections.sort(sortedDates, Collections.reverseOrder());
 
-                    int total  = progress.getTotalWorkouts()  != null ? progress.getTotalWorkouts()  : 0;
-                    int streak = progress.getCurrentStreak()  != null ? progress.getCurrentStreak()  : 0;
-                    String lastWorkout = progress.getLastWorkout() != null && !progress.getLastWorkout().isEmpty()
-                            ? progress.getLastWorkout() : "—";
+        int total = sortedDates.size();
+        int streak = calculateCurrentStreak(sortedDates);
+        String lastWorkout = sortedDates.isEmpty() ? "—" : sortedDates.get(0);
 
-                    if (tvWorkoutsCompleted != null) tvWorkoutsCompleted.setText(String.valueOf(total));
-                    if (tvCurrentStreak    != null) tvCurrentStreak.setText(streak + "🔥");
-                    if (tvLastWorkout      != null) tvLastWorkout.setText(lastWorkout);
+        if (tvWorkoutsCompleted != null) {
+            tvWorkoutsCompleted.setText(String.valueOf(total));
+        }
 
-                    if (tvRecentWorkout1 != null) {
-                        tvRecentWorkout1.setText("—".equals(lastWorkout) ? "No workouts yet" : "Last completed workout");
-                    }
-                    if (tvRecentWorkout1Date != null) {
-                        tvRecentWorkout1Date.setText("—".equals(lastWorkout) ? "Complete your first workout" : lastWorkout);
-                    }
+        if (tvCurrentStreak != null) {
+            tvCurrentStreak.setText(streak + "🔥");
+        }
+
+        if (tvLastWorkout != null) {
+            tvLastWorkout.setText(lastWorkout);
+        }
+
+        if (tvRecentWorkout1 != null) {
+            if (sortedDates.isEmpty()) {
+                tvRecentWorkout1.setText("No workouts yet");
+            } else {
+                tvRecentWorkout1.setText("Last completed workout");
+            }
+        }
+
+        if (tvRecentWorkout1Date != null) {
+            if (sortedDates.isEmpty()) {
+                tvRecentWorkout1Date.setText("Complete your first workout");
+            } else {
+                tvRecentWorkout1Date.setText(lastWorkout);
+            }
+        }
+    }
+
+    private int calculateCurrentStreak(List<String> sortedDatesDesc) {
+        if (sortedDatesDesc.isEmpty()) return 0;
+
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+            Calendar today = Calendar.getInstance();
+            String todayStr = sdf.format(today.getTime());
+
+            Calendar yesterday = Calendar.getInstance();
+            yesterday.add(Calendar.DAY_OF_YEAR, -1);
+            String yesterdayStr = sdf.format(yesterday.getTime());
+
+            if (!sortedDatesDesc.get(0).equals(todayStr) && !sortedDatesDesc.get(0).equals(yesterdayStr)) {
+                return 0;
+            }
+
+            int streak = 1;
+            Calendar previous = Calendar.getInstance();
+            previous.setTime(sdf.parse(sortedDatesDesc.get(0)));
+
+            for (int i = 1; i < sortedDatesDesc.size(); i++) {
+                Calendar current = Calendar.getInstance();
+                current.setTime(sdf.parse(sortedDatesDesc.get(i)));
+
+                long diffMillis = previous.getTimeInMillis() - current.getTimeInMillis();
+                long diffDays = diffMillis / (1000L * 60L * 60L * 24L);
+
+                if (diffDays == 1) {
+                    streak++;
+                    previous = current;
+                } else if (diffDays == 0) {
+                    previous = current;
+                } else {
+                    break;
                 }
             }
 
-            @Override
-            public void onFailure(Call<AuthApi.ProgressResponse> call, Throwable t) {
-                Toast.makeText(Stats.this, "Could not load progress", Toast.LENGTH_SHORT).show();
-            }
-        });
+            return streak;
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     private void loadWorkoutPlan() {
@@ -213,6 +261,30 @@ public class Stats extends BaseActivity {
         });
     }
 
+    private String getWorkoutPrefsName() {
+        return "workout_done_prefs_" + currentUsername;
+    }
+
+    private String getWaterPrefsName() {
+        return "water_prefs_" + currentUsername;
+    }
+
+    private void loadCompletedDatesFromPrefs() {
+        completedDates.clear();
+        SharedPreferences prefs = getSharedPreferences(getWorkoutPrefsName(), MODE_PRIVATE);
+        Map<String, ?> allEntries = prefs.getAll();
+
+        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+
+            if (key.startsWith("done_date_") && value instanceof Boolean && (Boolean) value) {
+                String date = key.substring("done_date_".length());
+                completedDates.add(date);
+            }
+        }
+    }
+
     private void buildCalendarGrid() {
         if (calendarGrid == null) return;
         calendarGrid.removeAllViews();
@@ -226,8 +298,8 @@ public class Stats extends BaseActivity {
         cal.set(Calendar.DAY_OF_MONTH, 1);
 
         int firstDayOfWeek = cal.get(Calendar.DAY_OF_WEEK) - 1;
-        int daysInMonth    = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
-        String todayStr    = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        int daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+        String todayStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                 .format(Calendar.getInstance().getTime());
 
         for (int i = 0; i < firstDayOfWeek; i++) {
@@ -238,10 +310,10 @@ public class Stats extends BaseActivity {
             Calendar dayCal = (Calendar) displayedMonth.clone();
             dayCal.set(Calendar.DAY_OF_MONTH, day);
 
-            String  dateStr     = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(dayCal.getTime());
-            String  dayName     = DAY_NAMES.get(dayCal.get(Calendar.DAY_OF_WEEK));
+            String dateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(dayCal.getTime());
+            String dayName = DAY_NAMES.get(dayCal.get(Calendar.DAY_OF_WEEK));
             boolean isScheduled = workoutDayNames.contains(dayName);
-            boolean isToday     = dateStr.equals(todayStr);
+            boolean isToday = dateStr.equals(todayStr);
             AuthApi.WorkoutPlanItem planItem = workoutPlanByDay.get(dayName);
 
             calendarGrid.addView(makeDayCell(day, dateStr, dayName, isScheduled, isToday, planItem));
@@ -273,28 +345,15 @@ public class Stats extends BaseActivity {
         tv.setText(String.valueOf(day));
         tv.setTextSize(13);
 
-        // Apply style (completed overrides scheduled)
         applyDayCellStyle(tv, dateStr, isScheduled, isToday);
 
-        if (isScheduled) {
-            tv.setOnClickListener(v -> {
-                // Toggle completed state
-                if (completedDates.contains(dateStr)) {
-                    completedDates.remove(dateStr);
-                } else {
-                    completedDates.add(dateStr);
-                }
-                applyDayCellStyle(tv, dateStr, true, isToday);
-
-                // Still show the detail dialog on tap
-                showDayDetail(dateStr, dayName, planItem);
-            });
+        if (isScheduled || completedDates.contains(dateStr)) {
+            tv.setOnClickListener(v -> showDayDetail(dateStr, dayName, planItem));
         }
 
         return tv;
     }
 
-    // ── NEW: split style into its own method so toggle can re-call it ─────
     private void applyDayCellStyle(TextView tv, String dateStr,
                                    boolean isScheduled, boolean isToday) {
         if (completedDates.contains(dateStr)) {
@@ -317,17 +376,24 @@ public class Stats extends BaseActivity {
         msg.append("Date: ").append(dateStr).append("\n\n");
         msg.append("Workout day: ").append(capitalize(dayName)).append("\n");
 
+        if (completedDates.contains(dateStr)) {
+            msg.append("Status: Completed\n");
+        }
+
         if (planItem != null) {
-            if (planItem.getFocus() != null)
+            if (planItem.getFocus() != null) {
                 msg.append("Workout: ").append(planItem.getFocus()).append("\n");
-            if (planItem.getEstimatedTotalMinutes() != null)
+            }
+            if (planItem.getEstimatedTotalMinutes() != null) {
                 msg.append("Duration: ").append(planItem.getEstimatedTotalMinutes()).append(" mins\n");
+            }
             if (planItem.getExercises() != null && !planItem.getExercises().isEmpty()) {
                 msg.append("\nExercises:\n");
                 for (AuthApi.ExerciseItem ex : planItem.getExercises()) {
                     String line = "• " + ex.getExerciseName();
-                    if (ex.getSets() != null && ex.getReps() != null)
+                    if (ex.getSets() != null && ex.getReps() != null) {
                         line += " , " + ex.getSets() + " sets x " + ex.getReps();
+                    }
                     msg.append(line).append("\n");
                 }
             }
@@ -340,10 +406,8 @@ public class Stats extends BaseActivity {
                 .show();
     }
 
-    // ── Water methods (new) ───────────────────────────────────────────────
-
     private void addWater() {
-        SharedPreferences prefs = getSharedPreferences(PREF_WATER, MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences(getWaterPrefsName(), MODE_PRIVATE);
         int current = prefs.getInt(KEY_WATER, 0);
         current += WATER_STEP_ML;
 
@@ -366,8 +430,8 @@ public class Stats extends BaseActivity {
     }
 
     private void resetWaterIfNewDay() {
-        SharedPreferences prefs = getSharedPreferences(PREF_WATER, MODE_PRIVATE);
-        String today    = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        SharedPreferences prefs = getSharedPreferences(getWaterPrefsName(), MODE_PRIVATE);
+        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                 .format(Calendar.getInstance().getTime());
         String lastDate = prefs.getString(KEY_WATER_DATE, "");
         if (!today.equals(lastDate)) {
@@ -377,14 +441,14 @@ public class Stats extends BaseActivity {
 
     private void updateWaterUI() {
         if (waterMeterFill == null || tvWaterAmount == null) return;
-        SharedPreferences prefs = getSharedPreferences(PREF_WATER, MODE_PRIVATE);
-        int   current = prefs.getInt(KEY_WATER, 0);
-        float pct     = Math.min((float) current / WATER_GOAL_ML, 1f);
+        SharedPreferences prefs = getSharedPreferences(getWaterPrefsName(), MODE_PRIVATE);
+        int current = prefs.getInt(KEY_WATER, 0);
+        float pct = Math.min((float) current / WATER_GOAL_ML, 1f);
 
         waterMeterFill.post(() -> {
             View parent = (View) waterMeterFill.getParent();
             if (parent == null) return;
-            int padding   = dpToPx(8);
+            int padding = dpToPx(8);
             int fillWidth = Math.round((parent.getWidth() - padding * 2) * pct);
             android.view.ViewGroup.LayoutParams lp = waterMeterFill.getLayoutParams();
             lp.width = Math.max(fillWidth, 0);
@@ -393,8 +457,6 @@ public class Stats extends BaseActivity {
 
         tvWaterAmount.setText(current + " / " + WATER_GOAL_ML + " ml");
     }
-
-    // ── Helpers ───────────────────────────────────────────────────────────
 
     private int dpToPx(int dp) {
         return Math.round(dp * getResources().getDisplayMetrics().density);

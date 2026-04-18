@@ -8,7 +8,6 @@
     android:background="@drawable/bg_gradient_blue"
     tools:context=".WorkoutDetailsActivity">
 
-    <!-- Header -->
     <TextView
         android:id="@+id/tvWorkoutDetailsTitle"
         android:layout_width="wrap_content"
@@ -20,7 +19,7 @@
         android:layout_marginTop="56dp"
         android:layout_marginStart="24dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/tvWorkoutMeta"
@@ -31,10 +30,10 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="4dp"
         app:layout_constraintTop_toBottomOf="@id/tvWorkoutDetailsTitle"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Card container -->
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/detailsScroll"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="130dp"
@@ -51,34 +50,46 @@
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
             android:paddingTop="28dp"
-            android:paddingBottom="100dp">
+            android:paddingBottom="120dp">
 
-            <!-- Section title -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Exercises"
-                android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="#1A1A2E"
-                android:layout_marginBottom="10dp"/>
+                android:textSize="18sp"
+                android:textColor="#111111"
+                android:layout_marginBottom="14dp" />
 
-            <!-- Exercise list card -->
             <LinearLayout
+                android:id="@+id/workoutCardsContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/bg_stat_pill"
-                android:padding="16dp">
+                android:orientation="vertical" />
 
-                <TextView
-                    android:id="@+id/tvWorkoutExercises"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:textColor="#1A1A2E"/>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnWorkoutDone"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="20dp"
+                android:text="Workout Done"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                app:backgroundTint="#4CAF50"
+                app:cornerRadius="26dp" />
 
-            </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBackToWorkouts"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="12dp"
+                android:text="Back to Workouts"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                app:backgroundTint="#6A5ACD"
+                app:cornerRadius="26dp" />
 
         </LinearLayout>
 

@@ -56,10 +56,7 @@ public class Profile extends BaseActivity {
                 )
         );
 
-        MaterialButton btnTestWorkouts = findViewById(R.id.btnTestWorkouts);
-        btnTestWorkouts.setOnClickListener(v ->
-                startActivity(new Intent(this, WorkoutsActivity.class))
-        );
+
 
         MaterialButton btnLogout = findViewById(R.id.btnLogout);
         btnLogout.setOnClickListener(v -> {
